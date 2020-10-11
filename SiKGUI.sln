@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30011.22
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SiKLink", "SiKLink\SiKLink.csproj", "{A88788BE-C0EB-47D0-A3BE-9ED2E023706D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SiKGUIWPF", "SiKGUIWPF\SiKGUIWPF.csproj", "{9A53FF36-9C4C-4BE4-B77E-F7B95A568AAD}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{A88788BE-C0EB-47D0-A3BE-9ED2E023706D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A88788BE-C0EB-47D0-A3BE-9ED2E023706D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A88788BE-C0EB-47D0-A3BE-9ED2E023706D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A88788BE-C0EB-47D0-A3BE-9ED2E023706D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9A53FF36-9C4C-4BE4-B77E-F7B95A568AAD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9A53FF36-9C4C-4BE4-B77E-F7B95A568AAD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9A53FF36-9C4C-4BE4-B77E-F7B95A568AAD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9A53FF36-9C4C-4BE4-B77E-F7B95A568AAD}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {A4AFD475-8354-4CF3-AF32-D17175FB20E4}
+	EndGlobalSection
+EndGlobal
