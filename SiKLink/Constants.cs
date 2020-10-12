@@ -27,5 +27,24 @@ namespace SiKLink
         public static ReadOnlyCollection<int> SiKSerialRates = new ReadOnlyCollection<int>(new int[] { 1, 2, 4, 9, 19, 38, 57, 115, 230 });
         public static ReadOnlyCollection<int> AirPower = new ReadOnlyCollection<int>(new int[] { 1, 2, 5, 8, 11, 14, 17, 20 });
         public static ReadOnlyDictionary<int, string> BoardFreqStr = new ReadOnlyDictionary<int, string>(new Dictionary<int, string>() { { 0x43, "433" }, { 0x47, "470" }, { 0x86, "868" }, { 0x91, "915" }, { 0xf0, "NONE" } });
+        public enum SikParameters
+        {
+            FORMAT = 0,
+            SERIAL_SPEED,
+            AIR_SPEED,
+            NETID,
+            TXPOWER,
+            ECC,
+            MAVLINK,
+            OPPRESEND,
+            MIN_FREQ,
+            MAX_FREQ,
+            NUM_CHANNELS,
+            DUTY_CYCLE,
+            LBT_RSSI,
+            MANCHESTER,
+            RTSCTS,
+            MAX_WINDOW
+        }
     }   
 }

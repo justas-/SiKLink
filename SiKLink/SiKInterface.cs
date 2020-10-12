@@ -264,6 +264,34 @@ namespace SiKLink
             return true;
         }
         /// <summary>
+        /// Set SiK radio parameter value
+        /// </summary>
+        /// <param name="paramNum">Parameter number</param>
+        /// <param name="value">Parameter integer value</param>
+        /// <returns>true on success</returns>
+        public bool WriteParameter(int paramNum, int value)
+        {
+            return true;
+        }
+        /// <summary>
+        /// Set Sik radio parameter value
+        /// </summary>
+        /// <param name="paramNum">Parameter number</param>
+        /// <param name="value">Parameter boolean value</param>
+        /// <returns></returns>
+        public bool WriteParameter(int paramNum, bool value)
+        {
+            return true;
+        }
+        public bool WriteParameter(Constants.SikParameters parameter, int value)
+        {
+            return WriteParameter((int)parameter, value);
+        }
+        public bool WriteParameter(Constants.SikParameters parameter, bool value)
+        {
+            return WriteParameter((int)parameter, value);
+        }
+        /// <summary>
         /// Send AT command which expects OK as reply.
         /// </summary>
         /// <param name="command">Comman (without AT)</param>
