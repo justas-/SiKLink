@@ -5,7 +5,12 @@ VisualStudioVersion = 16.0.30011.22
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SiKLink", "SiKLink\SiKLink.csproj", "{A88788BE-C0EB-47D0-A3BE-9ED2E023706D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SiKGUIWPF", "SiKGUIWPF\SiKGUIWPF.csproj", "{9A53FF36-9C4C-4BE4-B77E-F7B95A568AAD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SiKGUIWPF", "SiKGUIWPF\SiKGUIWPF.csproj", "{9A53FF36-9C4C-4BE4-B77E-F7B95A568AAD}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{CEA0A2BD-4A8B-46FC-8276-23B7CB1C7347}"
+	ProjectSection(SolutionItems) = preProject
+		.gitignore = .gitignore
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
