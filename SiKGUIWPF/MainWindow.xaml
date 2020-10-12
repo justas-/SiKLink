@@ -63,82 +63,71 @@ along with this program.If not, see<http://www.gnu.org/licenses/> .
                                 <RowDefinition Height="1*" />
                                 <RowDefinition Height="1*" />
                             </Grid.RowDefinitions>
-                            <WrapPanel Grid.Column="0" Grid.Row="0">
+                            <WrapPanel Grid.Column="0" Grid.Row="0" Background="AliceBlue">
                                 <Label Content="Serial Speed:" />
-                                <ComboBox MinWidth="70" Name="SiKSerialSpeed">
+                                <ComboBox MinWidth="70" Name="SiKSerialSpeed" SelectedItem="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}, Path=SiKConfig.SerialSpeed}">
                                 </ComboBox>
                             </WrapPanel>
-                            <WrapPanel Grid.Column="1" Grid.Row="0">
+                            <WrapPanel Grid.Column="1" Grid.Row="0" Background="AliceBlue">
                                 <Label Content="Air Speed:" />
-                                <ComboBox MinWidth="70" Name="SiKAirSpeed">
-                                </ComboBox>
+                                <TextBox MinWidth="70" Name="SiKAirSpeed" Text="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}, Path=SiKConfig.AirSpeed}"/>
                             </WrapPanel>
-                            <WrapPanel Grid.Column="2" Grid.Row="0">
+                            <WrapPanel Grid.Column="2" Grid.Row="0" Background="AliceBlue">
                                 <Label Content="ECC:" />
-                                <CheckBox VerticalAlignment="Center"/>
+                                <CheckBox VerticalAlignment="Center" IsChecked="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}, Path=SiKConfig.ECC}"/>
                             </WrapPanel>
-                            <WrapPanel Grid.Column="3" Grid.Row="0">
+                            <WrapPanel Grid.Column="3" Grid.Row="0" Background="AliceBlue">
                                 <Label Content="Mavlink:" />
-                                <ComboBox MinWidth="70" Name="MavlinkFrame">
+                                <ComboBox MinWidth="70" Name="MavlinkFrame" SelectedItem="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}, Path=SiKConfig.MavlinkMode}">
                                 </ComboBox>
                             </WrapPanel>
-                            <WrapPanel Grid.Column="0" Grid.Row="1">
+                            <WrapPanel Grid.Column="0" Grid.Row="1" Background="AliceBlue">
                                 <Label Content="Min Freq:" />
-                                <TextBox MinWidth="80" VerticalAlignment="Center"/>
+                                <TextBox MinWidth="80" VerticalAlignment="Center" Text="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}, Path=SiKConfig.MinFrequency}"/>
                             </WrapPanel>
-                            <WrapPanel Grid.Column="1" Grid.Row="1">
+                            <WrapPanel Grid.Column="1" Grid.Row="1" Background="AliceBlue">
                                 <Label Content="Max Freq:" />
-                                <TextBox MinWidth="80" VerticalAlignment="Center"/>
+                                <TextBox MinWidth="80" VerticalAlignment="Center" Text="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}, Path=SiKConfig.MaxFrequency}"/>
                             </WrapPanel>
-                            <WrapPanel Grid.Column="2" Grid.Row="1">
+                            <WrapPanel Grid.Column="2" Grid.Row="1" Background="AliceBlue">
                                 <Label Content="Num Chan:" />
-                                <TextBox MinWidth="80" VerticalAlignment="Center"/>
+                                <TextBox MinWidth="80" VerticalAlignment="Center" Text="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}, Path=SiKConfig.NumChannels}"/>
                             </WrapPanel>
                             <WrapPanel Grid.Column="4" Grid.Row="1">
                                 <Label Content="Tx Power:" />
-                                <ComboBox MinWidth="70">
-                                    <ComboBoxItem>AAA</ComboBoxItem>
-                                </ComboBox>
+                                <ComboBox MinWidth="70" Name="AirPower" SelectedItem="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}, Path=SiKConfig.TxPower}" />
                             </WrapPanel>
-                            <WrapPanel Grid.Column="0" Grid.Row="2">
+                            <WrapPanel Grid.Column="0" Grid.Row="2" Background="AliceBlue">
                                 <Label Content="Net ID:" />
-                                <ComboBox MinWidth="70">
-                                    <ComboBoxItem>AAA</ComboBoxItem>
-                                </ComboBox>
+                                <TextBox MinWidth="80" VerticalAlignment="Center" Text="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}, Path=SiKConfig.NetworkID}"/>
                             </WrapPanel>
                             <WrapPanel Grid.Column="1" Grid.Row="2">
                                 <Label Content="Duty Cycle:" />
-                                <ComboBox MinWidth="70">
-                                    <ComboBoxItem>AAA</ComboBoxItem>
-                                </ComboBox>
+                                <ComboBox MinWidth="70" Name="DutyCycle" SelectedItem="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}, Path=SiKConfig.DutyCycle}"/>
                             </WrapPanel>
-                            <WrapPanel Grid.Column="2" Grid.Row="2">
+                            <WrapPanel Grid.Column="2" Grid.Row="2" Background="AliceBlue">
                                 <Label Content="LBT RSSI:" />
-                                <ComboBox MinWidth="70">
-                                    <ComboBoxItem>AAA</ComboBoxItem>
-                                </ComboBox>
+                                <ComboBox MinWidth="70" Name="LbtRssi" SelectedItem="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}, Path=SiKConfig.LbtRssiThreshold}"/>
                             </WrapPanel>
-                            <WrapPanel Grid.Column="3" Grid.Row="2">
+                            <WrapPanel Grid.Column="3" Grid.Row="2" Background="AliceBlue">
                                 <Label Content="Max Wnd:" />
-                                <ComboBox MinWidth="70">
-                                    <ComboBoxItem>AAA</ComboBoxItem>
-                                </ComboBox>
+                                <ComboBox MinWidth="70" Name="MaxWnd" SelectedItem="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}, Path=SiKConfig.MaxWindowSize}" />
                             </WrapPanel>
                             <WrapPanel Grid.Column="0" Grid.Row="3">
                                 <Label Content="RTS/CTS:" />
-                                <CheckBox VerticalAlignment="Center"/>
+                                <CheckBox VerticalAlignment="Center" IsChecked="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}, Path=SiKConfig.UseRtsCts}"/>
                             </WrapPanel>
-                            <WrapPanel Grid.Column="1" Grid.Row="3">
+                            <WrapPanel Grid.Column="1" Grid.Row="3" Background="AliceBlue">
                                 <Label Content="Manchester:" />
-                                <CheckBox VerticalAlignment="Center"/>
+                                <CheckBox VerticalAlignment="Center" IsChecked="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}, Path=SiKConfig.ManchesterEncoding}"/>
                             </WrapPanel>
                             <WrapPanel Grid.Column="2" Grid.Row="3">
                                 <Label Content="Opp Send:" />
-                                <CheckBox VerticalAlignment="Center"/>
+                                <CheckBox VerticalAlignment="Center" IsChecked="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}, Path=SiKConfig.OpportunisticResend}"/>
                             </WrapPanel>
                             <WrapPanel Grid.Column="3" Grid.Row="3">
                                 <Label Content="EEPROM Fmt:" />
-                                <TextBox MinWidth="30" VerticalAlignment="Center"/>
+                                <TextBox MinWidth="30" IsEnabled="False" VerticalAlignment="Center" Text="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}, Path=SiKConfig.ParameterFormat}"/>
                             </WrapPanel>
                             <WrapPanel Grid.ColumnSpan="4" Grid.Row="4">
                                 <Label Content="Radio:" />

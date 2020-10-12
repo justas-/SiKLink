@@ -67,10 +67,13 @@ namespace SiKGUIWPF
         public MainWindow()
         {
             InitializeComponent();
+
+            SerialPort.DropDownOpened += SerialPort_DropDownOpened;
+
             foreach (var item in SiKInterface.GetSerialPorts())
                 SerialPort.Items.Add(item);
 
-            foreach (var item in SiKLink.Constants.SerialRates)
+            foreach (var item in Helpers.SerialRates)
                 SerialSpeed.Items.Add(item);
 
             SerialSpeed.SelectedItem = 57600;
@@ -78,7 +81,45 @@ namespace SiKGUIWPF
             foreach (var item in SiKLink.Constants.SiKSerialRates)
                 SiKSerialSpeed.Items.Add(item);
 
+            foreach (var item in SiKLink.Constants.MavlinkFrame)
+                MavlinkFrame.Items.Add(item);
+
+            foreach (var item in SiKLink.Constants.AirPower)
+                AirPower.Items.Add(item);
+
+            foreach (var item in Enumerable.Range(1, 100))
+                DutyCycle.Items.Add(item);
+
+            foreach (var item in Enumerable.Range(0, 255))
+                LbtRssi.Items.Add(item);
+
+            foreach (var item in Enumerable.Range(33, 99))
+                MaxWnd.Items.Add(item);
+
+
             SiKConfig = _sikInterface.SiKConfig;
+        }
+        /// <summary>
+        /// Populate Drop Down with Serial Port names.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void SerialPort_DropDownOpened(object sender, EventArgs e)
+        {
+            SerialPort.Items.Clear();
+
+            foreach (var item in SiKInterface.GetSerialPorts())
+                SerialPort.Items.Add(item);
+        }
+
+        /// <summary>
+        /// Close connection nicely when closing.
+        /// </summary>
+        /// <param name="e"></param>
+        protected override void OnClosing(System.ComponentModel.CancelEventArgs e)
+        {
+            _sikInterface.Disconnect();
+            base.OnClosing(e);
         }
 
         private void Button_ConnectClick(object sender, RoutedEventArgs e)

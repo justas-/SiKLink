@@ -23,7 +23,7 @@ namespace SiKLink
     public class Constants
     {
         public static ReadOnlyCollection<int> AirRates = new ReadOnlyCollection<int>(new int[]{ 2, 4, 8, 16, 19, 24, 32, 48, 64, 96, 128, 192, 250 });
-        public static ReadOnlyCollection<int> SerialRates = new ReadOnlyCollection<int>(new int[] { 1200, 2400, 4800, 9600, 19200, 38400, 57600, 115200, 230400});
+        public static ReadOnlyCollection<int> MavlinkFrame = new ReadOnlyCollection<int>(new int[] { 0, 1, 2 });
         public static ReadOnlyCollection<int> SiKSerialRates = new ReadOnlyCollection<int>(new int[] { 1, 2, 4, 9, 19, 38, 57, 115, 230 });
         public static ReadOnlyCollection<int> AirPower = new ReadOnlyCollection<int>(new int[] { 1, 2, 5, 8, 11, 14, 17, 20 });
         public static ReadOnlyDictionary<int, string> BoardFreqStr = new ReadOnlyDictionary<int, string>(new Dictionary<int, string>() { { 0x43, "433" }, { 0x47, "470" }, { 0x86, "868" }, { 0x91, "915" }, { 0xf0, "NONE" } });

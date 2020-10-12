@@ -236,7 +236,7 @@ namespace SiKLink
                         SiKConfig.MinFrequency = int.Parse(param_val);
                         break;
                     case "S9":
-                        SiKConfig.MaxFreqeuncy = int.Parse(param_val);
+                        SiKConfig.MaxFrequency = int.Parse(param_val);
                         break;
                     case "S10":
                         SiKConfig.NumChannels = int.Parse(param_val);
@@ -288,5 +288,6 @@ namespace SiKLink
             var rep = _serialPort.ReadLine();
             return rep;
         }
+
     }
 }

@@ -199,7 +199,7 @@ namespace SiKLink
                 }
             }
         }
-        public int MaxFreqeuncy 
+        public int MaxFrequency
         {
             get
             {
@@ -210,7 +210,7 @@ namespace SiKLink
                 if (_maxFreq != value)
                 {
                     _maxFreq = value;
-                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("MaxFreqeuncy"));
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("MaxFrequency"));
                 }
             }
         }
