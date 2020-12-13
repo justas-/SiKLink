@@ -73,6 +73,10 @@ namespace SiKLink
             _serialPort = new SerialPort();
             _serialPort.NewLine = "\r\n";
         }
+        public SiKInterface(SerialPort serial)
+        {
+            _serialPort = serial;
+        }
         /// <summary>
         /// Connect to Serial Port and enter the command mode
         /// </summary>
@@ -98,6 +102,37 @@ namespace SiKLink
             
             return true;
         }
+
+        /// <summary>
+        /// Check if the connected radio is in the command mode
+        /// </summary>
+        /// <returns>true if radio is in the command mode</returns>
+        public bool CheckCommandMode()
+        {
+            if (!PortConnected)
+                throw new PortNotConnectedException();
+
+            // Write a single plus char
+            _serialPort.Write("+");
+            Thread.Sleep(100);
+
+            // Expect an echo
+            var ret = _serialPort.BytesToRead;
+            if (ret == 0)
+                return false;
+
+            // Try to read data
+            var ret_char = _serialPort.ReadChar();
+            if (ret_char == '+')
+            {
+                _serialPort.WriteLine("AT");    // Send NOP
+                _serialPort.ReadLine();         // Consume NOP echo
+                CommandMode = true;
+                return true;
+            }
+
+            return false;
+        }
         /// <summary>
         /// Enter command mode.
         /// </summary>
@@ -105,7 +140,7 @@ namespace SiKLink
         public bool EnterCommandMode()
         {
             if (!PortConnected)
-                return false;
+                throw new PortNotConnectedException();
 
             string reply;
 
@@ -121,10 +156,12 @@ namespace SiKLink
             }
 
             if (!reply.StartsWith("OK"))
+            {
+                CommandMode = false;
                 return false;
+            }
 
             CommandMode = true;
-
             return true;
         }
         /// <summary>
@@ -149,8 +186,11 @@ namespace SiKLink
         /// <returns>true on success, false otherwise</returns>
         public bool ReadIdentificationData()
         {
-            if (!PortConnected || !CommandMode)
-                throw new IOException();
+            if (!PortConnected)
+                throw new PortNotConnectedException();
+
+            if (!CommandMode)
+                throw new NotInCommandModeException();
 
             try
             {
@@ -175,8 +215,11 @@ namespace SiKLink
         /// <returns>true on success, false otherwise</returns>
         public bool ReadEEPROMData()
         {
-            if (!PortConnected || !CommandMode)
-                throw new IOException();
+            if (!PortConnected)
+                throw new PortNotConnectedException();
+
+            if (!CommandMode)
+                throw new NotInCommandModeException();
 
             var params_list = new List<string>();
 
