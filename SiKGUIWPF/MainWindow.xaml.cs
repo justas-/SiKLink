@@ -45,6 +45,29 @@ namespace SiKGUIWPF
 
         public event PropertyChangedEventHandler PropertyChanged;
 
+        /// <summary>
+        /// Find a parent based on a parent's Type.
+        /// </summary>
+        /// <typeparam name="T">Type of the parent</typeparam>
+        /// <param name="child">Child element</param>
+        /// <remarks>https://www.infragistics.com/community/blogs/b/blagunas/posts/find-the-parent-control-of-a-specific-type-in-wpf-and-silverlight</remarks>
+        /// <returns>Parent or null</returns>
+        public static T FindParent<T>(DependencyObject child) where T : DependencyObject
+        {
+            //get parent item
+            DependencyObject parentObject = VisualTreeHelper.GetParent(child);
+
+            //we've reached the end of the tree
+            if (parentObject == null) return null;
+
+            //check if the parent matches the type we're looking for
+            T parent = parentObject as T;
+            if (parent != null)
+                return parent;
+            else
+                return FindParent<T>(parentObject);
+        }
+
         public SiKConfig SiKConfig
         {
             get; private set;
@@ -124,29 +147,66 @@ namespace SiKGUIWPF
 
         private void Button_ConnectClick(object sender, RoutedEventArgs e)
         {
-            if (SerialPort.SelectedItem == null || SerialSpeed.SelectedItem == null)
+            if (SerialPort.SelectedItem == null)
+            {
+                StatusMessage = "Select COM port!";
                 return;
+            }
+            
+            if (SerialSpeed.SelectedItem == null)
+            {
+                StatusMessage = "Select COM baudrate";
+                return;
+            }
 
             if (!_sikInterface.Connect((string)SerialPort.SelectedItem, (int)SerialSpeed.SelectedItem))
             {
-                StatusMessage = "Failed to open port.";
+                StatusMessage = "Failed to open the COM port.";
                 return;
             }
 
-            if (!_sikInterface.EnterCommandMode())
+            // We are connected now. Update tab
+            var parent = FindParent<TabControl>(sender as Button);
+            if (parent != null)
             {
-                StatusMessage = "Failes to enter command mode.";
-                return;
+                var tab = parent.Items[0] as TabItem;
+                if (tab != null)
+                {
+                    tab.Header = $"{SerialPort.SelectedItem}({SerialSpeed.SelectedItem})";
+                }
+            }
+
+            // Are we in the comman mode already?
+            var in_command = _sikInterface.CheckCommandMode();
+            if (!in_command)
+            {
+                if (!_sikInterface.EnterCommandMode())
+                {
+                    StatusMessage = "Failed to enter the command mode.";
+                    return;
+                }
             }
 
             StatusMessage = "Connected!";
-
             _sikInterface.ReadIdentificationData();
         }
 
         private void Button_DisconnectClick(object sender, RoutedEventArgs e)
         {
             _sikInterface.Disconnect();
+
+            // We are connected now. Update tab
+            var parent = FindParent<TabControl>(sender as Button);
+            if (parent != null)
+            {
+                var tab = parent.Items[0] as TabItem;
+                if (tab != null)
+                {
+                    tab.Header = "Disconnected";
+                }
+            }
+
+            StatusMessage = "Disconnected.";
         }
 
         private void Button_ReadValuesClick(object sender, RoutedEventArgs e)
@@ -157,6 +217,27 @@ namespace SiKGUIWPF
             }
 
             StatusMessage = "EEPROM parameters read";
+        }
+
+        private void Button_WriteValuesClick(object sender, RoutedEventArgs e)
+        {
+
+        }
+        private void Button_SaveEepromClick(object sender, RoutedEventArgs e)
+        {
+            if (_sikInterface.SaveToEEPROM())
+            {
+                StatusMessage = "Configuration saved to EEPROM.";
+            }
+            else
+            {
+                StatusMessage = "Failure while writing EEPROM.";
+            }
+        }
+        private void Button_RestartRadioClick(object sender, RoutedEventArgs e)
+        {
+            _sikInterface.RebootRadio();
+            StatusMessage = "Radio reboot requested.";
         }
     }
 }
