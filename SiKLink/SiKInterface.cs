@@ -67,6 +67,11 @@ namespace SiKLink
         /// </summary>
         public SiKConfig SiKConfigRemote; // TODO: Implement
 
+        /// <summary>
+        /// RSSI data received from the radio
+        /// </summary>
+        public event RssiDataReceived OnRssiData;
+
         protected SerialPort _serialPort;
 
         public SiKInterface()
@@ -465,6 +470,19 @@ namespace SiKLink
             return true;
         }
         /// <summary>
+        /// Enable receiving and processing RSSI (and friends)
+        /// </summary>
+        public void EnableRssiDebug()
+        {
+            // Example L/R RSSI: 208/217  L/R noise: 49/30 pkts: 5  txe=0 rxe=0 stx=0 srx=0 ecc=0/0 temp=42 dco=0
+            // statistics.average_rssi, remote_statistics.average_rssi, statistics.average_noise, remote_statistics.average_noise,
+            // printf(" txe=%u rxe=%u stx=%u srx=%u ecc=%u/%u temp=%d dco=%u\n",
+            // errors.tx_errors, errors.rx_errors, errors.serial_tx_overflow, errors.serial_rx_overflow, errors.corrected_errors,
+            // errors.corrected_packets, statistics.receive_count, radio_temperature(),duty_cycle_offset
+
+
+        }
+        /// <summary>
         /// Set SiK radio parameter value
         /// </summary>
         /// <param name="paramNum">Parameter number</param>
@@ -520,5 +538,7 @@ namespace SiKLink
             var rep = _serialPort.ReadLine();
             return rep;
         }
+
+        public delegate void RssiDataReceived(object sender, RssiDataEventArgs rssi);
     }
 }
