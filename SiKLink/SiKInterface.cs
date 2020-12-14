@@ -17,7 +17,6 @@ along with this program.If not, see<http://www.gnu.org/licenses/>.
 */
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
 using System.IO.Ports;
 using System.Threading;
 
@@ -66,7 +65,7 @@ namespace SiKLink
         /// </summary>
         public SiKConfig SiKConfigRemote; // TODO: Implement
 
-        private SerialPort _serialPort;
+        protected SerialPort _serialPort;
 
         public SiKInterface()
         {
@@ -208,6 +207,58 @@ namespace SiKLink
             }
 
             return true;
+        }
+        /// <summary>
+        /// Reboot the radio
+        /// </summary>
+        /// <returns>true on success</returns>
+        public bool RebootRadio()
+        {
+            if (!PortConnected)
+                throw new PortNotConnectedException();
+
+            if (!CommandMode)
+                throw new NotInCommandModeException();
+
+            try
+            {
+                SendATNoRep("Z");
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+            
+        }
+        /// <summary>
+        /// Save current parameters to the EEPROM
+        /// </summary>
+        /// <returns>true on success</returns>
+        public bool SaveToEEPROM()
+        {
+            if (!PortConnected)
+                throw new PortNotConnectedException();
+
+            if (!CommandMode)
+                throw new NotInCommandModeException();
+
+            try
+            {
+                string response = SendATOneLineRep("&W");
+                if (response == "OK")
+                {
+                    return true;
+                }
+                else 
+                {
+                    return false;
+                }
+            }
+            catch
+            {
+                return false;
+            }
         }
         /// <summary>
         /// Read all EEPROM configuration parameters
