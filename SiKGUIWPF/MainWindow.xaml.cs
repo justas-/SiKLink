@@ -30,7 +30,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
-
+using Microsoft.Win32;
 using SiKLink;
 
 namespace SiKGUIWPF
@@ -68,10 +68,6 @@ namespace SiKGUIWPF
                 return FindParent<T>(parentObject);
         }
 
-        public SiKConfig SiKConfig
-        {
-            get; private set;
-        }
         public string StatusMessage
         {
             get
@@ -119,7 +115,7 @@ namespace SiKGUIWPF
             foreach (var item in Enumerable.Range(33, 99))
                 MaxWnd.Items.Add(item);
 
-            SiKConfig = _sikInterface.SiKConfig;
+            DataContext = _sikInterface.SiKConfig;
         }
         /// <summary>
         /// Populate Drop Down with Serial Port names.
@@ -237,6 +233,41 @@ namespace SiKGUIWPF
         {
             _sikInterface.RebootRadio();
             StatusMessage = "Radio reboot requested.";
+        }
+        private void Button_SaveClick(object sender, RoutedEventArgs e)
+        {
+            SaveFileDialog saveFileDialog = new SaveFileDialog();
+            saveFileDialog.Filter = "JSON file (*.json)|*.json";
+            saveFileDialog.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+            if (saveFileDialog.ShowDialog() == true)
+            {
+                if (_sikInterface.SaveParamsToFile(saveFileDialog.FileName))
+                {
+                    StatusMessage = "Parameters saved to a backup file.";
+                }
+                else
+                {
+                    StatusMessage = "Failed to save the parameters file.";
+                }
+            }
+        }
+        private void Button_LoadClick(object sender, RoutedEventArgs e)
+        {
+            var openFileDialog = new OpenFileDialog();
+            openFileDialog.Filter = "JSON file (*.json)|*.json";
+            openFileDialog.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+            if (openFileDialog.ShowDialog() == true)
+            {
+                if (_sikInterface.LoadParamsFromFile(openFileDialog.FileName))
+                {
+                    DataContext = _sikInterface.SiKConfig;
+                    StatusMessage = "Parameters loaded from a config file.";
+                }
+                else
+                {
+                    StatusMessage = "Failed to load the parameters.";
+                }
+            }
         }
     }
 }

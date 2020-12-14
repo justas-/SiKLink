@@ -19,6 +19,8 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO.Ports;
 using System.Threading;
+using System.Text.Json;
+using System.IO;
 
 namespace SiKLink
 {
@@ -398,13 +400,69 @@ namespace SiKLink
                     return false;
                 if (!WriteParameter(Constants.SikParameters.MAX_WINDOW, SiKConfig.MaxWindowSize))
                     return false;
-                
+
                 return true;
             }
             catch
             {
                 return false;
             }
+        }
+        /// <summary>
+        /// Save current configuration values to a JSON backup file.
+        /// </summary>
+        /// <param name="filename">Filename to save</param>
+        /// <returns>true on success</returns>
+        public bool SaveParamsToFile(string filename)
+        {
+            string jsonString = JsonSerializer.Serialize(SiKConfig);
+
+            using (StreamWriter outputFile = new StreamWriter(filename))
+            {
+                try
+                {
+                    outputFile.WriteLine(jsonString);
+                    return true;
+                }
+                catch
+                {
+                    // Consume errors if any and return failure
+                    return false;
+                }
+            }
+        }
+        /// <summary>
+        /// Load configuration parameters from a JSON file
+        /// </summary>
+        /// <param name="filename">path to a parameters file</param>
+        /// <returns>true on success</returns>
+        public bool LoadParamsFromFile(string filename)
+        {
+            string jsonString;
+
+            using (StreamReader inputFile = new StreamReader(filename))
+            {
+                try
+                {
+                    jsonString = inputFile.ReadToEnd();
+                }
+                catch
+                {
+                    return false;
+                }
+            }
+
+            try
+            {
+                var new_data = JsonSerializer.Deserialize<SiKConfig>(jsonString);
+                SiKConfig = new_data;
+            }
+            catch
+            {
+                return false;
+            }
+
+            return true;
         }
         /// <summary>
         /// Set SiK radio parameter value
