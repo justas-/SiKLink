@@ -16,21 +16,25 @@ You should have received a copy of the GNU Lesser General Public License
 along with this program.If not, see<http://www.gnu.org/licenses/>.
 */
 using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Text;
+using System.Globalization;
 using System.Windows.Controls;
+using System.Windows.Data;
 
 namespace SiKGUIWPF
 {
-    class Helpers
+    [ValueConversion(typeof(int), typeof(ComboBoxItem))]
+    class MavVerToIdConverter : IValueConverter
     {
-        public static ReadOnlyCollection<int> SerialRates = new ReadOnlyCollection<int>(new int[] { 1200, 2400, 4800, 9600, 19200, 38400, 57600, 115200, 230400 });
-        public static ReadOnlyCollection<ComboBoxItem> MavVersions = new ReadOnlyCollection<ComboBoxItem>(new ComboBoxItem[]
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            new ComboBoxItem(){Content = "MavLink 1"},
-            new ComboBoxItem(){Content = "MavLink 2"},
-            new ComboBoxItem(){Content = "MavLink 2 Low Latency"}
-        });
+            int numeric_id = (int)value;
+            return Helpers.MavVersions[numeric_id];
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            ComboBoxItem item = (ComboBoxItem)value;
+            return Helpers.MavVersions.IndexOf(item);
+        }
     }
 }

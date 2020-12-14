@@ -22,7 +22,7 @@ namespace SiKLink
 {
     public class Constants
     {
-        public static ReadOnlyCollection<int> AirRates = new ReadOnlyCollection<int>(new int[]{ 2, 4, 8, 16, 19, 24, 32, 48, 64, 96, 128, 192, 250 });
+        public static ReadOnlyCollection<int> AirRates = new ReadOnlyCollection<int>(new int[] { 2, 4, 8, 16, 19, 24, 32, 48, 64, 96, 128, 192, 250 });
         public static ReadOnlyCollection<int> MavlinkFrame = new ReadOnlyCollection<int>(new int[] { 0, 1, 2 });
         public static ReadOnlyCollection<int> SiKSerialRates = new ReadOnlyCollection<int>(new int[] { 1, 2, 4, 9, 19, 38, 57, 115, 230 });
         public static ReadOnlyCollection<int> AirPower = new ReadOnlyCollection<int>(new int[] { 1, 2, 5, 8, 11, 14, 17, 20 });
@@ -46,5 +46,5 @@ namespace SiKLink
             RTSCTS,
             MAX_WINDOW
         }
-    }   
+    }
 }

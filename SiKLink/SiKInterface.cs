@@ -55,7 +55,7 @@ namespace SiKLink
         /// <summary>
         /// SiK radio in Command mode.
         /// </summary>
-        public bool CommandMode { get; private set;  } = false;
+        public bool CommandMode { get; private set; } = false;
         /// <summary>
         /// Configuration parameters of the local SiK board.
         /// </summary>
@@ -98,7 +98,7 @@ namespace SiKLink
             {
                 return false;
             }
-            
+
             return true;
         }
 
@@ -229,7 +229,7 @@ namespace SiKLink
             {
                 return false;
             }
-            
+
         }
         /// <summary>
         /// Save current parameters to the EEPROM
@@ -250,7 +250,7 @@ namespace SiKLink
                 {
                     return true;
                 }
-                else 
+                else
                 {
                     return false;
                 }
@@ -290,7 +290,7 @@ namespace SiKLink
                 return false;
             }
 
-            foreach(var line in params_list)
+            foreach (var line in params_list)
             {
                 // Skip echo
                 if (line.StartsWith("AT"))
@@ -299,7 +299,7 @@ namespace SiKLink
                 var tokens = line.Split(':');
                 var param_id = tokens[0];
                 var param_val = tokens[1].Split("=")[1];
-                
+
                 switch (param_id)
                 {
                     case "S0":
@@ -356,6 +356,55 @@ namespace SiKLink
             }
 
             return true;
+        }
+        /// <summary>
+        /// Transfer all parameter values to the radio.
+        /// </summary>
+        /// <remarks>This function does not save parameters to the EEPROM!</remarks>
+        /// <returns>true on success</returns>
+        public bool SaveParameters()
+        {
+            try
+            {
+                if (!WriteParameter(Constants.SikParameters.FORMAT, SiKConfig.ParameterFormat))
+                    return false;
+                if (!WriteParameter(Constants.SikParameters.SERIAL_SPEED, SiKConfig.SerialSpeed))
+                    return false;
+                if (!WriteParameter(Constants.SikParameters.AIR_SPEED, SiKConfig.AirSpeed))
+                    return false;
+                if (!WriteParameter(Constants.SikParameters.NETID, SiKConfig.NetworkID))
+                    return false;
+                if (!WriteParameter(Constants.SikParameters.TXPOWER, SiKConfig.TxPower))
+                    return false;
+                if (!WriteParameter(Constants.SikParameters.ECC, SiKConfig.ECC))
+                    return false;
+                if (!WriteParameter(Constants.SikParameters.MAVLINK, SiKConfig.MavlinkMode))
+                    return false;
+                if (!WriteParameter(Constants.SikParameters.OPPRESEND, SiKConfig.OpportunisticResend))
+                    return false;
+                if (!WriteParameter(Constants.SikParameters.MIN_FREQ, SiKConfig.MinFrequency))
+                    return false;
+                if (!WriteParameter(Constants.SikParameters.MAX_FREQ, SiKConfig.MaxFrequency))
+                    return false;
+                if (!WriteParameter(Constants.SikParameters.NUM_CHANNELS, SiKConfig.NumChannels))
+                    return false;
+                if (!WriteParameter(Constants.SikParameters.DUTY_CYCLE, SiKConfig.DutyCycle))
+                    return false;
+                if (!WriteParameter(Constants.SikParameters.LBT_RSSI, SiKConfig.LbtRssiThreshold))
+                    return false;
+                if (!WriteParameter(Constants.SikParameters.MANCHESTER, SiKConfig.ManchesterEncoding))
+                    return false;
+                if (!WriteParameter(Constants.SikParameters.RTSCTS, SiKConfig.UseRtsCts))
+                    return false;
+                if (!WriteParameter(Constants.SikParameters.MAX_WINDOW, SiKConfig.MaxWindowSize))
+                    return false;
+                
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
         }
         /// <summary>
         /// Set SiK radio parameter value

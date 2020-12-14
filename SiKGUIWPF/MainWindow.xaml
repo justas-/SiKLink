@@ -22,7 +22,10 @@ along with this program.If not, see<http://www.gnu.org/licenses/> .
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:SiKGUIWPF"
         mc:Ignorable="d"
-        Title="SiK Radio Configurator" Height="300" Width="650">
+        Title="SiK Radio Configurator" Height="300" Width="700">
+    <Window.Resources>
+        <local:MavVerToIdConverter x:Key="MavVerToId"/>
+    </Window.Resources>
     <Grid>
         <TabControl>
             <TabItem Header="Disconnected">
@@ -73,7 +76,7 @@ along with this program.If not, see<http://www.gnu.org/licenses/> .
                             </WrapPanel>
                             <WrapPanel Grid.Column="3" Grid.Row="0" Background="AliceBlue">
                                 <Label Content="Mavlink:" />
-                                <ComboBox MinWidth="70" Name="MavlinkFrame" VerticalAlignment="Center" SelectedItem="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}, Path=SiKConfig.MavlinkMode}">
+                                <ComboBox MinWidth="70" Name="MavlinkFrame" VerticalAlignment="Center" SelectedItem="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}, Path=SiKConfig.MavlinkMode, Converter={StaticResource MavVerToId}}">
                                 </ComboBox>
                             </WrapPanel>
                             <WrapPanel Grid.Column="0" Grid.Row="1" Background="AliceBlue">
@@ -151,3 +154,4 @@ along with this program.If not, see<http://www.gnu.org/licenses/> .
         </TabControl>
     </Grid>
 </Window>
+    

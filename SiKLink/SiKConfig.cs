@@ -44,12 +44,11 @@ namespace SiKLink
         private string _boardFrequency;
         private string _bootloaderVersion;
 
-        //
         // ATS parameters https://github.com/ArduPilot/SiK/blob/master/Firmware/radio/parameters.h
         // Defaults:
         //{"FORMAT",         PARAM_FORMAT_CURRENT},
 	    //{"SERIAL_SPEED",   57}, // match APM default of 57600
-	    //{"AIR_SPEED",      64}, // relies on MAVLink flow control
+        //{"AIR_SPEED",      64}, // relies on MAVLink flow control
 	    //{"NETID",          25},
 	    //{"TXPOWER",        20},
 	    //{"ECC",             0},

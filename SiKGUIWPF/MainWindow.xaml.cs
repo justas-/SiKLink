@@ -104,7 +104,7 @@ namespace SiKGUIWPF
             foreach (var item in SiKLink.Constants.SiKSerialRates)
                 SiKSerialSpeed.Items.Add(item);
 
-            foreach (var item in SiKLink.Constants.MavlinkFrame)
+            foreach (var item in Helpers.MavVersions)
                 MavlinkFrame.Items.Add(item);
 
             foreach (var item in SiKLink.Constants.AirPower)
@@ -118,7 +118,6 @@ namespace SiKGUIWPF
 
             foreach (var item in Enumerable.Range(33, 99))
                 MaxWnd.Items.Add(item);
-
 
             SiKConfig = _sikInterface.SiKConfig;
         }
@@ -176,7 +175,7 @@ namespace SiKGUIWPF
                 }
             }
 
-            // Are we in the comman mode already?
+            // Are we in the command mode already?
             var in_command = _sikInterface.CheckCommandMode();
             if (!in_command)
             {
@@ -221,7 +220,7 @@ namespace SiKGUIWPF
 
         private void Button_WriteValuesClick(object sender, RoutedEventArgs e)
         {
-
+            _sikInterface.SaveParameters();
         }
         private void Button_SaveEepromClick(object sender, RoutedEventArgs e)
         {
