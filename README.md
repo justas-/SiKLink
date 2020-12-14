@@ -10,6 +10,8 @@ SiKLink in a C# interface library to controll the SiK radio. It abstracts serial
 
 SiKGUI is a set of GUI interfaces for SiKLink. The goal is to make SiKLink user-friendly and to try portability of .NET between different operating systems and GUI frameworks.
 
+_*TLDR*_ - Find the latest binary in [Github releases page](https://github.com/justas-/SiKLink/releases/).
+
 ### SiKGUIWPF
 
 SiKGUIWPF is a GUI application written in C# using WPF. Due to the use of WPF, it can run on MS Windows only.
