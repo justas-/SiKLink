@@ -365,7 +365,8 @@ namespace SiKLink
         /// <returns>true on success</returns>
         public bool WriteParameter(int paramNum, int value)
         {
-            return true;
+            string op_result = SendATOneLineRep($"S{paramNum}={value}");
+            return op_result == "OK" ? true : false;
         }
         /// <summary>
         /// Set Sik radio parameter value
@@ -375,7 +376,9 @@ namespace SiKLink
         /// <returns></returns>
         public bool WriteParameter(int paramNum, bool value)
         {
-            return true;
+            string bool_value = value ? "1" : "0";
+            string op_result = SendATOneLineRep($"S{paramNum}={bool_value}");
+            return op_result == "OK" ? true : false;
         }
         public bool WriteParameter(Constants.SikParameters parameter, int value)
         {
@@ -410,6 +413,5 @@ namespace SiKLink
             var rep = _serialPort.ReadLine();
             return rep;
         }
-
     }
 }
