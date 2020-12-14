@@ -48,21 +48,21 @@ namespace SiKLink
         // ATS parameters https://github.com/ArduPilot/SiK/blob/master/Firmware/radio/parameters.h
         // Defaults:
         //{"FORMAT",         PARAM_FORMAT_CURRENT},
-	    //{"SERIAL_SPEED",   57}, // match APM default of 57600
+        //{"SERIAL_SPEED",   57}, // match APM default of 57600
         //{"AIR_SPEED",      64}, // relies on MAVLink flow control
-	    //{"NETID",          25},
-	    //{"TXPOWER",        20},
-	    //{"ECC",             0},
-	    //{"MAVLINK",         1},
-	    //{"OPPRESEND",       0},
-	    //{"MIN_FREQ",        0},
-	    //{"MAX_FREQ",        0},
-	    //{"NUM_CHANNELS",    0},
-	    //{"DUTY_CYCLE",    100},
-	    //{"LBT_RSSI",        0},
-	    //{"MANCHESTER",      0},
-	    //{"RTSCTS",          0},
-	    //{"MAX_WINDOW",    131},
+        //{"NETID",          25},
+        //{"TXPOWER",        20},
+        //{"ECC",             0},
+        //{"MAVLINK",         1},
+        //{"OPPRESEND",       0},
+        //{"MIN_FREQ",        0},
+        //{"MAX_FREQ",        0},
+        //{"NUM_CHANNELS",    0},
+        //{"DUTY_CYCLE",    100},
+        //{"LBT_RSSI",        0},
+        //{"MANCHESTER",      0},
+        //{"RTSCTS",          0},
+        //{"MAX_WINDOW",    131},
 
         public int ParameterFormat
         {
@@ -139,7 +139,7 @@ namespace SiKLink
                 }
             }
         }
-        public bool ECC 
+        public bool ECC
         {
             get
             {
@@ -154,7 +154,7 @@ namespace SiKLink
                 }
             }
         }
-        public int MavlinkMode 
+        public int MavlinkMode
         {
             get
             {
@@ -169,7 +169,7 @@ namespace SiKLink
                 }
             }
         }
-        public bool OpportunisticResend 
+        public bool OpportunisticResend
         {
             get
             {
@@ -214,7 +214,7 @@ namespace SiKLink
                 }
             }
         }
-        public int NumChannels 
+        public int NumChannels
         {
             get
             {
@@ -229,7 +229,7 @@ namespace SiKLink
                 }
             }
         }
-        public int DutyCycle 
+        public int DutyCycle
         {
             get
             {
@@ -244,7 +244,7 @@ namespace SiKLink
                 }
             }
         }
-        public int LbtRssiThreshold 
+        public int LbtRssiThreshold
         {
             get
             {
@@ -259,7 +259,7 @@ namespace SiKLink
                 }
             }
         }
-        public bool ManchesterEncoding 
+        public bool ManchesterEncoding
         {
             get
             {
@@ -274,7 +274,7 @@ namespace SiKLink
                 }
             }
         }
-        public bool UseRtsCts 
+        public bool UseRtsCts
         {
             get
             {
@@ -289,7 +289,7 @@ namespace SiKLink
                 }
             }
         }
-        public int MaxWindowSize 
+        public int MaxWindowSize
         {
             get
             {

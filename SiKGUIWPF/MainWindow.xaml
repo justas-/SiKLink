@@ -147,7 +147,7 @@ along with this program.If not, see<http://www.gnu.org/licenses/> .
                             <Button Content="Restart Radio" Click="Button_RestartRadioClick" Margin="5 0 5 0"/>
                             <Button Content="Save" Click="Button_SaveClick" Margin="5 0 5 0"/>
                             <Button Content="Load" Click="Button_LoadClick" Margin="5 0 5 0"/>
-                            <Label Background="AliceBlue" Content="Blue Params must match on both ends!" />
+                            <Label Background="AliceBlue" Content="Blue Params must match on both ends!"/>
                         </WrapPanel>
                     </StackPanel>
                 </DockPanel>
