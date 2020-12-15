@@ -59,6 +59,10 @@ namespace SiKLink
         /// </summary>
         public bool CommandMode { get; private set; } = false;
         /// <summary>
+        /// Streaming of RSSI data is enabled
+        /// </summary>
+        public bool RssiStreamEnabled { get; private set; }
+        /// <summary>
         /// Configuration parameters of the local SiK board.
         /// </summary>
         public SiKConfig SiKConfig = new SiKConfig();
@@ -78,10 +82,39 @@ namespace SiKLink
         {
             _serialPort = new SerialPort();
             _serialPort.NewLine = "\r\n";
+            _serialPort.DataReceived += _serialPort_DataReceived;
         }
         public SiKInterface(SerialPort serial)
         {
             _serialPort = serial;
+        }
+        private void _serialPort_DataReceived(object sender, SerialDataReceivedEventArgs e)
+        {
+            // Process only when streaming data is enabled
+            if (!RssiStreamEnabled)
+                return;
+
+            string stream_data = _serialPort.ReadLine();
+
+            // Did we get RSSI data?
+            if (stream_data.StartsWith("L/R RSSI:"))
+                _processStreamingRssiData(stream_data);
+            
+            Debug.WriteLine(stream_data);
+        }
+        private void _processStreamingRssiData(string data)
+        {
+            RssiDataEventArgs rssi_data;
+            try
+            {
+                rssi_data = new RssiDataEventArgs(data);
+            }
+            catch
+            {
+                return;
+            }
+
+            OnRssiData?.Invoke(this, rssi_data);
         }
         /// <summary>
         /// Connect to Serial Port and enter the command mode
@@ -470,17 +503,14 @@ namespace SiKLink
             return true;
         }
         /// <summary>
-        /// Enable receiving and processing RSSI (and friends)
+        /// Enable/disable receiving and processing RSSI and related data.
         /// </summary>
-        public void EnableRssiDebug()
+        public void ToggleRssiDebug()
         {
-            // Example L/R RSSI: 208/217  L/R noise: 49/30 pkts: 5  txe=0 rxe=0 stx=0 srx=0 ecc=0/0 temp=42 dco=0
-            // statistics.average_rssi, remote_statistics.average_rssi, statistics.average_noise, remote_statistics.average_noise,
-            // printf(" txe=%u rxe=%u stx=%u srx=%u ecc=%u/%u temp=%d dco=%u\n",
-            // errors.tx_errors, errors.rx_errors, errors.serial_tx_overflow, errors.serial_rx_overflow, errors.corrected_errors,
-            // errors.corrected_packets, statistics.receive_count, radio_temperature(),duty_cycle_offset
-
-
+            // Important! Stop reading data before the next line which will block trying to consume echo
+            RssiStreamEnabled = !RssiStreamEnabled;
+            SendATNoRep("&T=RSSI");
+            
         }
         /// <summary>
         /// Set SiK radio parameter value
@@ -488,7 +518,7 @@ namespace SiKLink
         /// <param name="paramNum">Parameter number</param>
         /// <param name="value">Parameter integer value</param>
         /// <returns>true on success</returns>
-        public bool WriteParameter(int paramNum, int value)
+        protected bool WriteParameter(int paramNum, int value)
         {
             string op_result = SendATOneLineRep($"S{paramNum}={value}");
             return op_result == "OK" ? true : false;
@@ -499,7 +529,7 @@ namespace SiKLink
         /// <param name="paramNum">Parameter number</param>
         /// <param name="value">Parameter boolean value</param>
         /// <returns></returns>
-        public bool WriteParameter(int paramNum, bool value)
+        protected bool WriteParameter(int paramNum, bool value)
         {
             string bool_value = value ? "1" : "0";
             string op_result = SendATOneLineRep($"S{paramNum}={bool_value}");
@@ -518,7 +548,7 @@ namespace SiKLink
         /// </summary>
         /// <param name="command">Comman (without AT)</param>
         /// <returns>true on OK</returns>
-        private void SendATNoRep(string command)
+        protected void SendATNoRep(string command)
         {
             _serialPort.WriteLine($"AT{command}");
             // Consume echo if any
@@ -529,7 +559,7 @@ namespace SiKLink
         /// </summary>
         /// <param name="command">Command (without AT)</param>
         /// <returns>SiK returned data</returns>
-        private string SendATOneLineRep(string command)
+        protected string SendATOneLineRep(string command)
         {
             _serialPort.WriteLine($"AT{command}");
             Thread.Sleep(100);

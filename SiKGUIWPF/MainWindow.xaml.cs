@@ -42,6 +42,7 @@ namespace SiKGUIWPF
     {
         private SiKInterface _sikInterface = new SiKInterface();
         private string _statusMessage;
+        private bool _rssiStreaming = false;
 
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -267,6 +268,38 @@ namespace SiKGUIWPF
                 {
                     StatusMessage = "Failed to load the parameters.";
                 }
+            }
+        }
+        private void Button_RssiClick(object sender, RoutedEventArgs e)
+        {
+            _sikInterface.ToggleRssiDebug();
+            if (!_rssiStreaming)
+            {
+                _sikInterface.OnRssiData += _sikInterface_OnRssiData;
+                _rssiStreaming = true;
+            }
+            else
+            {
+                _sikInterface.OnRssiData -= _sikInterface_OnRssiData;
+                _rssiStreaming = false;
+            }
+        }
+
+        private void _sikInterface_OnRssiData(object sender, RssiDataEventArgs rssi)
+        {
+            if (Application.Current != null)
+            {
+                Application.Current.Dispatcher.Invoke(() => 
+                {
+                    RssiFig.AddValue(new RssiObservation
+                    {
+                        LocalRssi = rssi.LocalRssi,
+                        LocalNoise = rssi.LocalNoise,
+                        RemoteRssi = rssi.RemoteRssi,
+                        RemoteNoise = rssi.RemoteNoise,
+                        Id = RssiObservation.NextId++
+                    });
+                });
             }
         }
     }

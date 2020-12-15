@@ -17,6 +17,7 @@ along with this program.If not, see<http://www.gnu.org/licenses/>.
 */
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Windows;
@@ -29,6 +30,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using LiveCharts;
+using LiveCharts.Configurations;
 using LiveCharts.Wpf;
 
 namespace SiKGUIWPF
@@ -36,46 +38,93 @@ namespace SiKGUIWPF
     /// <summary>
     /// Interaction logic for RssiFigure.xaml
     /// </summary>
-    public partial class RssiFigure : UserControl
+    public partial class RssiFigure : UserControl, INotifyPropertyChanged
     {
         public SeriesCollection SeriesCollection { get; set; }
-        public string[] Labels { get; set; }
-        public Func<double, string> YFormatter { get; set; }
+        public ChartValues<RssiObservation> ChartValues { get; set; }
+        public double AxisStep { get; set; }
+        public double AxisUnit { get; set; }
+        public double AxisXMax
+        {
+            get { return _axisXMax; }
+            set
+            {
+                _axisXMax = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("AxisXMax"));
+            }
+        }
+        public double AxisXMin
+        {
+            get { return _axisXMin; }
+            set
+            {
+                _axisXMin = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("AxisXMin"));
+            }
+        }
+
+        private double _axisXMax;
+        private double _axisXMin;
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
         public RssiFigure()
         {
             InitializeComponent();
 
+            var local_rssi_mapper = Mappers.Xy<RssiObservation>().X(r => r.Id).Y(r => r.LocalRssi);
+            var local_noise_mapper = Mappers.Xy<RssiObservation>().X(r => r.Id).Y(r => r.LocalNoise);
+
             SeriesCollection = new SeriesCollection
             {
-                new LineSeries
+                new LineSeries(local_rssi_mapper)
                 {
                     Title = "Local RSSI",
-                    Values = new ChartValues<double> { 4, 6, 5, 2 ,4 }
+                    Values = new ChartValues<RssiObservation>()
                 },
-                new LineSeries
-                {
-                    Title = "Remote RSSI",
-                    Values = new ChartValues<double> { 6, 7, 3, 4 ,6 },
-                },
-                new LineSeries
+                new LineSeries(local_noise_mapper)
                 {
                     Title = "Local Noise",
-                    Values = new ChartValues<double> { 4,2,7,2,7 },
+                    Values = new ChartValues<RssiObservation>()
                 },
-                new LineSeries
-                {
-                    Title = "Remote Noise",
-                    Values = new ChartValues<double> { 4,2,7,2,7 },
-                }
             };
 
-            var labels = new string[120];
-            foreach (var item in Enumerable.Range(1, 120))
-                labels[item - 1] = item.ToString();
+            Charting.For<RssiObservation>(local_noise_mapper);
+            ChartValues = new ChartValues<RssiObservation>();
 
-            Labels = labels;
+            foreach (var i in Enumerable.Range(0, 99))
+            {
+                ChartValues.Add(new RssiObservation
+                {
+                    Id = RssiObservation.NextId++,
+                    LocalNoise = i,
+                });
+            }
+
+            AxisStep = 10;
+            AxisUnit = 1;
+
+            SetAxisLimits(RssiObservation.NextId);
 
             DataContext = this;
+        }
+        public void AddValue(RssiObservation rssiData)
+        {
+            foreach(var series in SeriesCollection)
+            {
+                series.Values.Add(rssiData);
+                if (series.Values.Count > 100) series.Values.RemoveAt(0);
+            }
+
+            ChartValues.Add(rssiData);
+            if (ChartValues.Count > 100) ChartValues.RemoveAt(0);
+
+            SetAxisLimits(RssiObservation.NextId);
+        }
+        private void SetAxisLimits(int currentId)
+        {
+            AxisXMax = currentId + 1;
+            AxisXMin = currentId - 100;
         }
     }
 }
