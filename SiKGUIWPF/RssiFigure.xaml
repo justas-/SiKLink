@@ -25,16 +25,7 @@ along with this program.If not, see<http://www.gnu.org/licenses/>.
              mc:Ignorable="d"
              d:DesignHeight="300" d:DesignWidth="600">
     <Grid>
-        <lvc:CartesianChart LegendLocation="Bottom" AnimationsSpeed="0:0:0.5" Hoverable="False" DataTooltip="{x:Null}">
-            <lvc:CartesianChart.Series>
-                <lvc:LineSeries Values="{Binding ChartValues}"
-                                Title="Local Noise"
-                                PointGeometry="{x:Null}" 
-                                LineSmoothness="1"
-                                StrokeThickness="6" 
-                                Stroke="#F34336"
-                                Fill="Transparent"/>
-            </lvc:CartesianChart.Series>
+        <lvc:CartesianChart Series="{Binding SeriesCollection}" LegendLocation="Bottom" AnimationsSpeed="0:0:0.5" Hoverable="False" DataTooltip="{x:Null}">
             <lvc:CartesianChart.AxisY>
                 <lvc:Axis Title="RSSI" IsMerged="True" MinValue="0" MaxValue="255"></lvc:Axis>
             </lvc:CartesianChart.AxisY>

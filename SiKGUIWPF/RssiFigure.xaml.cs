@@ -15,20 +15,9 @@ GNU Lesser General Public License for more details.
 You should have received a copy of the GNU Lesser General Public License
 along with this program.If not, see<http://www.gnu.org/licenses/>.
 */
-using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
-using System.Text;
-using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using LiveCharts;
 using LiveCharts.Configurations;
 using LiveCharts.Wpf;
@@ -74,6 +63,8 @@ namespace SiKGUIWPF
 
             var local_rssi_mapper = Mappers.Xy<RssiObservation>().X(r => r.Id).Y(r => r.LocalRssi);
             var local_noise_mapper = Mappers.Xy<RssiObservation>().X(r => r.Id).Y(r => r.LocalNoise);
+            var remote_rssi_mapper = Mappers.Xy<RssiObservation>().X(r => r.Id).Y(r => r.RemoteRssi);
+            var remote_noise_mapper = Mappers.Xy<RssiObservation>().X(r => r.Id).Y(r => r.RemoteNoise);
 
             SeriesCollection = new SeriesCollection
             {
@@ -87,19 +78,17 @@ namespace SiKGUIWPF
                     Title = "Local Noise",
                     Values = new ChartValues<RssiObservation>()
                 },
-            };
-
-            Charting.For<RssiObservation>(local_noise_mapper);
-            ChartValues = new ChartValues<RssiObservation>();
-
-            foreach (var i in Enumerable.Range(0, 99))
-            {
-                ChartValues.Add(new RssiObservation
+                new LineSeries(remote_rssi_mapper)
                 {
-                    Id = RssiObservation.NextId++,
-                    LocalNoise = i,
-                });
-            }
+                    Title = "Remote RSSI",
+                    Values = new ChartValues<RssiObservation>()
+                },
+                new LineSeries(remote_noise_mapper)
+                {
+                    Title = "Remote Noise",
+                    Values = new ChartValues<RssiObservation>()
+                },
+            };
 
             AxisStep = 10;
             AxisUnit = 1;
@@ -115,10 +104,6 @@ namespace SiKGUIWPF
                 series.Values.Add(rssiData);
                 if (series.Values.Count > 100) series.Values.RemoveAt(0);
             }
-
-            ChartValues.Add(rssiData);
-            if (ChartValues.Count > 100) ChartValues.RemoveAt(0);
-
             SetAxisLimits(RssiObservation.NextId);
         }
         private void SetAxisLimits(int currentId)
