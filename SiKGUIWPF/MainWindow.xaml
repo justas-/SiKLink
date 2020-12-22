@@ -22,7 +22,7 @@ along with this program.If not, see<http://www.gnu.org/licenses/> .
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:SiKGUIWPF"
         mc:Ignorable="d"
-        Title="SiK Radio Configurator" Height="300" Width="700">
+        Title="SiK Radio Configurator" Height="580" Width="700">
     <Window.Resources>
         <local:MavVerToIdConverter x:Key="MavVerToId"/>
     </Window.Resources>
@@ -141,14 +141,17 @@ along with this program.If not, see<http://www.gnu.org/licenses/> .
                             </WrapPanel>
                         </Grid>
                         <WrapPanel>
-                            <Button Content="Read Values" Click="Button_ReadValuesClick" Margin="5 0 5 0"/>
-                            <Button Content="Write Values" Click="Button_WriteValuesClick" Margin="5 0 5 0"/>
-                            <Button Content="Save to EEPROM" Click="Button_SaveEepromClick" Margin="5 0 5 0"/>
-                            <Button Content="Restart Radio" Click="Button_RestartRadioClick" Margin="5 0 5 0"/>
+                            <Button Name="BtnReadValues" Content="Read Values" Click="Button_ReadValuesClick" Margin="5 0 5 0"/>
+                            <Button Name="BtnWriteValues" Content="Write Values" Click="Button_WriteValuesClick" Margin="5 0 5 0"/>
+                            <Button Name="BtnSaveEeprom" Content="Save to EEPROM" Click="Button_SaveEepromClick" Margin="5 0 5 0"/>
+                            <Button Name="BtnRestartRadio" Content="Restart Radio" Click="Button_RestartRadioClick" Margin="5 0 5 0"/>
                             <Button Content="Save" Click="Button_SaveClick" Margin="5 0 5 0"/>
                             <Button Content="Load" Click="Button_LoadClick" Margin="5 0 5 0"/>
+                            <Button Name="BtnShowFigures" Content="RSSI" Click="Button_RssiClick" Margin="5 0 5 0"/>
                             <Label Background="AliceBlue" Content="Blue Params must match on both ends!"/>
                         </WrapPanel>
+                        <local:RssiFigure x:Name="RssiFig" Height="300" Visibility="Visible">
+                        </local:RssiFigure>
                     </StackPanel>
                 </DockPanel>
             </TabItem>

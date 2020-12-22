@@ -21,6 +21,7 @@ using System.IO.Ports;
 using System.Threading;
 using System.Text.Json;
 using System.IO;
+using System;
 
 namespace SiKLink
 {
@@ -59,31 +60,65 @@ namespace SiKLink
         /// </summary>
         public bool CommandMode { get; private set; } = false;
         /// <summary>
+        /// Streaming of RSSI data is enabled
+        /// </summary>
+        public bool RssiStreamEnabled { get; private set; }
+        /// <summary>
         /// Configuration parameters of the local SiK board.
         /// </summary>
         public SiKConfig SiKConfig = new SiKConfig();
         /// <summary>
         /// Configuration parameters of the remote SiK board.
         /// </summary>
-        public SiKConfig SiKConfigRemote; // TODO: Implement
+        public SiKConfig SiKConfigRemote => throw new NotImplementedException();
+        /// <summary>
+        /// RSSI data received from the radio
+        /// </summary>
+        public event RssiDataReceived OnRssiData;
 
         protected SerialPort _serialPort;
+        protected List<byte> _rssiBytesBuffer = new List<byte>(512);
 
-        public SiKInterface()
-        {
-            _serialPort = new SerialPort();
-            _serialPort.NewLine = "\r\n";
-        }
+        public SiKInterface() : this(new SerialPort()) { }
+
         public SiKInterface(SerialPort serial)
         {
             _serialPort = serial;
+            _serialPort.NewLine = "\n";
+            _serialPort.DataReceived += _serialPort_DataReceived;
+        }
+        private void _serialPort_DataReceived(object sender, SerialDataReceivedEventArgs e)
+        {
+            // Process only when streaming data is enabled
+            if (!RssiStreamEnabled)
+                return;
+
+            string str_sentence = _serialPort.ReadLine();
+            if (str_sentence.StartsWith("L/R RSSI:"))
+            {
+                _processStreamingRssiData(str_sentence);
+            }
+        }
+        private void _processStreamingRssiData(string data)
+        {
+            RssiDataEventArgs rssi_data;
+            try
+            {
+                rssi_data = new RssiDataEventArgs(data);
+            }
+            catch
+            {
+                return;
+            }
+
+            OnRssiData?.Invoke(this, rssi_data);
         }
         /// <summary>
         /// Connect to Serial Port and enter the command mode
         /// </summary>
         /// <param name="port">Port to connect to</param>
         /// <param name="baudrate">Baud rate</param>
-        /// <returns>true on success and in command mode</returns>
+        /// <returns>true on success</returns>
         public bool Connect(string port, int baudrate)
         {
             if (PortConnected)
@@ -126,7 +161,7 @@ namespace SiKLink
             var ret_char = _serialPort.ReadChar();
             if (ret_char == '+')
             {
-                _serialPort.WriteLine("AT");    // Send NOP
+                _serialPort.WriteLine("AT\r");  // Send NOP
                 _serialPort.ReadLine();         // Consume NOP echo
                 CommandMode = true;
                 return true;
@@ -175,7 +210,7 @@ namespace SiKLink
 
             if (CommandMode)
             {
-                SendATNoRep("O");
+                SendAtCommand("O", false);
                 CommandMode = false;
             }
 
@@ -195,16 +230,14 @@ namespace SiKLink
 
             try
             {
-                SiKConfig.RadioBanner = SendATOneLineRep("I0");
-                SiKConfig.RadioVersion = SendATOneLineRep("I1");
-                SiKConfig.BoardId = SendATOneLineRep("I2");
-                SiKConfig.BoardFrequency = Constants.BoardFreqStr[int.Parse(SendATOneLineRep("I3"))];
-                SiKConfig.BootloaderVersion = SendATOneLineRep("I4");
+                SiKConfig.RadioBanner = SendAtCommand("I0");
+                SiKConfig.RadioVersion = SendAtCommand("I1");
+                SiKConfig.BoardId = SendAtCommand("I2");
+                SiKConfig.BoardFrequency = Constants.BoardFreqStr[int.Parse(SendAtCommand("I3"))];
+                SiKConfig.BootloaderVersion = SendAtCommand("I4");
             }
             catch
             {
-                // Consume exception.
-                // TODO: Make a log
                 return false;
             }
 
@@ -224,7 +257,7 @@ namespace SiKLink
 
             try
             {
-                SendATNoRep("Z");
+                SendAtCommand("Z", false);
                 return true;
             }
             catch
@@ -247,15 +280,7 @@ namespace SiKLink
 
             try
             {
-                string response = SendATOneLineRep("&W");
-                if (response == "OK")
-                {
-                    return true;
-                }
-                else
-                {
-                    return false;
-                }
+                return SendAtCommand("&W") == "OK";
             }
             catch
             {
@@ -278,13 +303,13 @@ namespace SiKLink
 
             try
             {
-                _serialPort.WriteLine("ATI5");
+                // Send request and consume echo
+                SendAtCommand("I5", false);
 
-                for (int i = 17; i > 0; i--)
+                for (int i = 16; i > 0; i--)
                 {
-                    var param = _serialPort.ReadLine();
+                    string param = _serialPort.ReadLine();
                     params_list.Add(param);
-                    Debug.WriteLine(param);
                 }
             }
             catch
@@ -294,13 +319,9 @@ namespace SiKLink
 
             foreach (var line in params_list)
             {
-                // Skip echo
-                if (line.StartsWith("AT"))
-                    continue;
-
                 var tokens = line.Split(':');
                 var param_id = tokens[0];
-                var param_val = tokens[1].Split("=")[1];
+                var param_val = tokens[1].Split("=")[1].Trim('\r');
 
                 switch (param_id)
                 {
@@ -366,10 +387,17 @@ namespace SiKLink
         /// <returns>true on success</returns>
         public bool SaveParameters()
         {
+            if (!PortConnected)
+                throw new PortNotConnectedException();
+
+            if (!CommandMode)
+                throw new NotInCommandModeException();
+
             try
             {
-                if (!WriteParameter(Constants.SikParameters.FORMAT, SiKConfig.ParameterFormat))
-                    return false;
+                // Params format is immutable.
+                //if (!WriteParameter(Constants.SikParameters.FORMAT, SiKConfig.ParameterFormat))
+                //    return false;
                 if (!WriteParameter(Constants.SikParameters.SERIAL_SPEED, SiKConfig.SerialSpeed))
                     return false;
                 if (!WriteParameter(Constants.SikParameters.AIR_SPEED, SiKConfig.AirSpeed))
@@ -465,15 +493,24 @@ namespace SiKLink
             return true;
         }
         /// <summary>
+        /// Enable/disable receiving and processing RSSI and related data.
+        /// </summary>
+        public void ToggleRssiDebug()
+        {
+            // Important! Stop reading data before the next line which will block trying to consume the echo
+            RssiStreamEnabled = !RssiStreamEnabled;
+            SendAtCommand("&T=RSSI", false);
+        }
+        /// <summary>
         /// Set SiK radio parameter value
         /// </summary>
         /// <param name="paramNum">Parameter number</param>
         /// <param name="value">Parameter integer value</param>
         /// <returns>true on success</returns>
-        public bool WriteParameter(int paramNum, int value)
+        protected bool WriteParameter(int paramNum, int value)
         {
-            string op_result = SendATOneLineRep($"S{paramNum}={value}");
-            return op_result == "OK" ? true : false;
+            string op_result = SendAtCommand($"S{paramNum}={value}");
+            return op_result == "OK";
         }
         /// <summary>
         /// Set Sik radio parameter value
@@ -481,44 +518,59 @@ namespace SiKLink
         /// <param name="paramNum">Parameter number</param>
         /// <param name="value">Parameter boolean value</param>
         /// <returns></returns>
-        public bool WriteParameter(int paramNum, bool value)
+        protected bool WriteParameter(int paramNum, bool value)
         {
             string bool_value = value ? "1" : "0";
-            string op_result = SendATOneLineRep($"S{paramNum}={bool_value}");
-            return op_result == "OK" ? true : false;
+            string op_result = SendAtCommand($"S{paramNum}={bool_value}");
+            return op_result == "OK";
         }
         public bool WriteParameter(Constants.SikParameters parameter, int value)
         {
+            if (!PortConnected)
+                throw new PortNotConnectedException();
+
+            if (!CommandMode)
+                throw new NotInCommandModeException();
+
             return WriteParameter((int)parameter, value);
         }
         public bool WriteParameter(Constants.SikParameters parameter, bool value)
         {
+            if (!PortConnected)
+                throw new PortNotConnectedException();
+
+            if (!CommandMode)
+                throw new NotInCommandModeException();
+
             return WriteParameter((int)parameter, value);
-        }
-        /// <summary>
-        /// Send AT command which expects OK as reply.
-        /// </summary>
-        /// <param name="command">Comman (without AT)</param>
-        /// <returns>true on OK</returns>
-        private void SendATNoRep(string command)
-        {
-            _serialPort.WriteLine($"AT{command}");
-            // Consume echo if any
-            _serialPort.ReadLine();
         }
         /// <summary>
         /// Send AT command which expects one line return.
         /// </summary>
         /// <param name="command">Command (without AT)</param>
-        /// <returns>SiK returned data</returns>
-        private string SendATOneLineRep(string command)
+        /// <param name="with_reply">Expect a reply</param>
+        /// <returns>reply from radio or empty str</returns>
+        protected string SendAtCommand(string command, bool with_reply = true)
         {
-            _serialPort.WriteLine($"AT{command}");
-            Thread.Sleep(100);
-            _serialPort.ReadLine(); // Consume echo
-            Thread.Sleep(100);
-            var rep = _serialPort.ReadLine();
-            return rep;
+            string at_command = $"AT{command}";
+            _serialPort.Write($"{at_command}\r");   // \r send command for processing
+
+            string echo = _serialPort.ReadLine();
+            echo = echo.Trim('\r');
+            if (echo != at_command)
+            {
+                Debug.WriteLine($"Got something else than echo: {echo}");
+            }
+
+            // Return an empty str if no reply expected
+            if (!with_reply)
+                return "";
+
+            string reply = _serialPort.ReadLine();
+            reply = reply.Trim('\r');
+            return reply;
         }
+
+        public delegate void RssiDataReceived(object sender, RssiDataEventArgs rssi);
     }
 }
