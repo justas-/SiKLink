@@ -16,21 +16,13 @@ You should have received a copy of the GNU Lesser General Public License
 along with this program.If not, see<http://www.gnu.org/licenses/>.
 */
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using Microsoft.Win32;
+
 using SiKLink;
 
 namespace SiKGUIWPF
@@ -40,6 +32,9 @@ namespace SiKGUIWPF
     /// </summary>
     public partial class MainWindow : Window, INotifyPropertyChanged
     {
+        private static readonly int SMALLWNDHEIGHT = 280;
+        private static readonly int FULLWNDHEIGHT = 580;
+
         private SiKInterface _sikInterface = new SiKInterface();
         private string _statusMessage;
         private bool _rssiStreaming = false;
@@ -87,6 +82,9 @@ namespace SiKGUIWPF
         public MainWindow()
         {
             InitializeComponent();
+
+            Height = SMALLWNDHEIGHT;
+            RssiFig.Visibility = Visibility.Collapsed;
 
             SerialPort.DropDownOpened += SerialPort_DropDownOpened;
 
@@ -207,6 +205,12 @@ namespace SiKGUIWPF
 
         private void Button_ReadValuesClick(object sender, RoutedEventArgs e)
         {
+            if (!_sikInterface.PortConnected)
+            {
+                StatusMessage = "Not connected to the radio!";
+                return;
+            }
+
             if (!_sikInterface.ReadEEPROMData())
             {
                 StatusMessage = "Failure reading EEPROM parameters";
@@ -217,10 +221,29 @@ namespace SiKGUIWPF
 
         private void Button_WriteValuesClick(object sender, RoutedEventArgs e)
         {
-            _sikInterface.SaveParameters();
+            if (!_sikInterface.PortConnected)
+            {
+                StatusMessage = "Not connected to the radio!";
+                return;
+            }
+
+            if (!_sikInterface.SaveParameters())
+            {
+                StatusMessage = "Failed to save the parameters";
+            }
+            else
+            {
+                StatusMessage = "Parameters saved.";
+            }
         }
         private void Button_SaveEepromClick(object sender, RoutedEventArgs e)
         {
+            if (!_sikInterface.PortConnected)
+            {
+                StatusMessage = "Not connected to the radio!";
+                return;
+            }
+
             if (_sikInterface.SaveToEEPROM())
             {
                 StatusMessage = "Configuration saved to EEPROM.";
@@ -232,6 +255,12 @@ namespace SiKGUIWPF
         }
         private void Button_RestartRadioClick(object sender, RoutedEventArgs e)
         {
+            if (!_sikInterface.PortConnected)
+            {
+                StatusMessage = "Not connected to the radio!";
+                return;
+            }
+
             _sikInterface.RebootRadio();
             StatusMessage = "Radio reboot requested.";
         }
@@ -272,19 +301,52 @@ namespace SiKGUIWPF
         }
         private void Button_RssiClick(object sender, RoutedEventArgs e)
         {
+            if (!_sikInterface.PortConnected)
+            {
+                StatusMessage = "Not connected to the radio!";
+                return;
+            }
+
             _sikInterface.ToggleRssiDebug();
             if (!_rssiStreaming)
             {
+                EnableControlButtons(false);
+                BtnShowFigures.Background = Brushes.LightGreen;
                 _sikInterface.OnRssiData += _sikInterface_OnRssiData;
                 _rssiStreaming = true;
+                Height = FULLWNDHEIGHT;
+                RssiFig.Visibility = Visibility.Visible;
             }
             else
             {
+                EnableControlButtons(true);
+                BtnShowFigures.Background = (SolidColorBrush)(new BrushConverter().ConvertFrom("#FFDDDDDD"));
                 _sikInterface.OnRssiData -= _sikInterface_OnRssiData;
                 _rssiStreaming = false;
+                Height = SMALLWNDHEIGHT;
+                RssiFig.Visibility = Visibility.Collapsed;
+                RssiFig.ClearValues();
             }
         }
-
+        /// <summary>
+        /// Enable or disable function buttons.
+        /// </summary>
+        /// <param name="enable">true to enable</param>
+        private void EnableControlButtons(bool enable)
+        {
+            if (enable)
+            {
+                BtnReadValues.IsEnabled = true;
+                BtnWriteValues.IsEnabled = true;
+                BtnSaveEeprom.IsEnabled = true;
+            }
+            else
+            {
+                BtnReadValues.IsEnabled = false;
+                BtnWriteValues.IsEnabled = false;
+                BtnSaveEeprom.IsEnabled = false;
+            }
+        }
         private void _sikInterface_OnRssiData(object sender, RssiDataEventArgs rssi)
         {
             if (Application.Current != null)

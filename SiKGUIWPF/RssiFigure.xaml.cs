@@ -106,6 +106,13 @@ namespace SiKGUIWPF
             }
             SetAxisLimits(RssiObservation.NextId);
         }
+        public void ClearValues()
+        {
+            foreach (var series in SeriesCollection)
+            {
+                series.Values.Clear();
+            }
+        }
         private void SetAxisLimits(int currentId)
         {
             AxisXMax = currentId + 1;
