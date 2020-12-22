@@ -550,7 +550,7 @@ namespace SiKLink
         /// <param name="command">Command (without AT)</param>
         /// <param name="with_reply">Expect a reply</param>
         /// <returns>reply from radio or empty str</returns>
-        protected string SendAtCommand(string command, bool with_reply=true)
+        protected string SendAtCommand(string command, bool with_reply = true)
         {
             string at_command = $"AT{command}";
             _serialPort.Write($"{at_command}\r");   // \r send command for processing

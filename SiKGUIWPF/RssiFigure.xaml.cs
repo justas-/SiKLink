@@ -99,7 +99,7 @@ namespace SiKGUIWPF
         }
         public void AddValue(RssiObservation rssiData)
         {
-            foreach(var series in SeriesCollection)
+            foreach (var series in SeriesCollection)
             {
                 series.Values.Add(rssiData);
                 if (series.Values.Count > 100) series.Values.RemoveAt(0);

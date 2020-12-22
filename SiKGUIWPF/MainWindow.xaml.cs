@@ -146,7 +146,7 @@ namespace SiKGUIWPF
                 StatusMessage = "Select COM port!";
                 return;
             }
-            
+
             if (SerialSpeed.SelectedItem == null)
             {
                 StatusMessage = "Select COM baudrate";
@@ -351,7 +351,7 @@ namespace SiKGUIWPF
         {
             if (Application.Current != null)
             {
-                Application.Current.Dispatcher.Invoke(() => 
+                Application.Current.Dispatcher.Invoke(() =>
                 {
                     RssiFig.AddValue(new RssiObservation
                     {
