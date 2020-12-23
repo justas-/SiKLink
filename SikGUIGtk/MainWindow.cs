@@ -1,20 +1,31 @@
-﻿// This is free and unencumbered software released into the public domain.
-// Happy coding!!! - GtkSharp Team
+﻿/*
+SiK Link - GUI and control library for SiK radios.
+Copyright(C) 2020  J. Poderys
 
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU Lesser General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.See the
+GNU Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public License
+along with this program.If not, see<http://www.gnu.org/licenses/>.
+*/
 using Gtk;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 
-namespace Samples
+namespace SiKGuiGtk
 {
     class MainWindow : Window
     {
         private HeaderBar _headerBar;
-        private TreeView _treeView;
-        private Box _boxContent;
-        private TreeStore _store;
-        private Dictionary<string, (Type type, Widget widget)> _items;
         private Notebook _notebook;
 
         public MainWindow() : base(WindowType.Toplevel)
@@ -27,116 +38,34 @@ namespace Samples
             _headerBar.ShowCloseButton = true;
             _headerBar.Title = "GtkSharp Sample Application";
 
-            var btnClickMe = new Button();
-            btnClickMe.AlwaysShowImage = true;
-            btnClickMe.Image = Image.NewFromIconName("document-new-symbolic", IconSize.Button);
-            _headerBar.PackStart(btnClickMe);
-
             Titlebar = _headerBar;
+            Destroyed += (sender, e) => Application.Quit();
 
-            var hpanned = new HPaned();
-            hpanned.Position = 200;
-
-            _treeView = new TreeView();
-            _treeView.HeadersVisible = false;
-            hpanned.Pack1(_treeView, false, true);
+            VBox vbox1 = new VBox(false, 2);
+            vbox1.Orientation = Orientation.Horizontal;
+            VBox vbox2 = new VBox(false, 2);
 
             _notebook = new Notebook();
+            _notebook.AppendPage(vbox1, null);
+            _notebook.AppendPage(vbox2, null);
+            Add(_notebook);
 
-            var scroll1 = new ScrolledWindow();
-            var vpanned = new VPaned();
-            vpanned.Position = 300;
-            _boxContent = new Box(Orientation.Vertical, 0);
-            _boxContent.Margin = 8;
-            vpanned.Pack1(_boxContent, true, true);
-            vpanned.Pack2(ApplicationOutput.Widget, false, true);
-            scroll1.Child = vpanned;
-            _notebook.AppendPage(scroll1, new Label { Text = "Data", Expand = true });
+            vbox1.Add(new Label("Serial Port:"));
+            var comports = SiKLink.SiKInterface.GetSerialPorts();
+            comports.Add("<refresh>");
 
-            var scroll2 = new ScrolledWindow();
+            ComboBox portname = new ComboBox(comports.ToArray());
+            portname.Changed += Portname_Changed;
+            vbox1.Add(portname);
 
-
-            _notebook.AppendPage(scroll2, new Label { Text = "Code", Expand = true });
-
-            hpanned.Pack2(_notebook, true, true);
-
-            Child = hpanned;
-
-            // Fill up data
-            FillUpTreeView();
-
-            // Connect events
-            _treeView.Selection.Changed += Selection_Changed;
-            Destroyed += (sender, e) => Application.Quit();
+            vbox1.Add(new Label("Port baudrate:"));
+            ComboBox baudrate = new ComboBox(Helpers.SerialRates);
+            vbox1.Add(baudrate);
         }
 
-        private void Selection_Changed(object sender, EventArgs e)
+        private void Portname_Changed(object sender, EventArgs e)
         {
-            if (_treeView.Selection.GetSelected(out TreeIter iter))
-            {
-                var s = _store.GetValue(iter, 0).ToString();
-
-                while (_boxContent.Children.Length > 0)
-                    _boxContent.Remove(_boxContent.Children[0]);
-                _notebook.CurrentPage = 0;
-                _notebook.ShowTabs = false;
-
-                if (_items.TryGetValue(s, out var item))
-                {
-                    _notebook.ShowTabs = true;
-
-                    if (item.widget == null)
-                        _items[s] = item = (item.type, Activator.CreateInstance(item.type) as Widget);
-
-
-
-                    _boxContent.PackStart(item.widget, true, true, 0);
-                    _boxContent.ShowAll();
-                }
-
-            }
-        }
-
-        private void FillUpTreeView()
-        {
-            // Init cells
-            var cellName = new CellRendererText();
-
-            // Init columns
-            var columeSections = new TreeViewColumn();
-            columeSections.Title = "Sections";
-            columeSections.PackStart(cellName, true);
-
-            columeSections.AddAttribute(cellName, "text", 0);
-
-            _treeView.AppendColumn(columeSections);
-
-            // Init treeview
-            _store = new TreeStore(typeof(string));
-            _treeView.Model = _store;
-
-            // Setup category base
-            var dict = new Dictionary<Category, TreeIter>();
-            foreach (var category in Enum.GetValues(typeof(Category)))
-                dict[(Category)category] = _store.AppendValues(category.ToString());
-
-            // Fill up categories
-            _items = new Dictionary<string, (Type type, Widget widget)>();
-            var maintype = typeof(SectionAttribute);
-
-            foreach (var type in maintype.Assembly.GetTypes())
-            {
-                foreach (var attribute in type.GetCustomAttributes(true))
-                {
-                    if (attribute is SectionAttribute a)
-                    {
-                        _store.AppendValues(dict[a.Category], a.ContentType.Name);
-                        _items[a.ContentType.Name] = (type, null);
-                    }
-                }
-            }
-
-            _treeView.ExpandAll();
+            Debug.WriteLine("Portname_Changed");
         }
     }
 }
