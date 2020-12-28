@@ -19,13 +19,29 @@ using Gtk;
 using System;
 using System.Diagnostics;
 
+using SiKLink;
+
 namespace SiKGuiGtk
 {
     class MainWindow : Window
     {
+        private static string NOT_CONN_LBL = "Not Connected";
+
         private HeaderBar _headerBar;
         private Notebook _notebook;
         private Box _pageContainer;
+
+        private BoardIdentifierControls _boardIdentifiers;
+
+        private Label _pageLabel;
+
+        private ComboBoxText _portNameCombo;
+        private ComboBoxText _baudRateCombo;
+
+        private Statusbar _statusBar;
+        private uint _cxt;
+
+        private SiKInterface _sikInterface;
 
         public MainWindow() : base(WindowType.Toplevel)
         {
@@ -33,16 +49,23 @@ namespace SiKGuiGtk
             WindowPosition = WindowPosition.Center;
             DefaultSize = new Gdk.Size(600, 300);
 
+            _sikInterface = new SiKInterface();
+
             _headerBar = new HeaderBar();
             _headerBar.ShowCloseButton = true;
             _headerBar.Title = "SiK Radio Configurator";
+
+            _boardIdentifiers = new BoardIdentifierControls();
+            _sikInterface.SiKConfig.PropertyChanged += _boardIdentifiers.SiKConfig_PropertyChanged;
+
+            _pageLabel = new Label(NOT_CONN_LBL);
 
             Titlebar = _headerBar;
             Destroyed += (sender, e) => Application.Quit();
 
             _notebook = new Notebook();
             _pageContainer = new Box(Orientation.Vertical, 1);
-            _notebook.AppendPage(_pageContainer, null);
+            _notebook.AppendPage(_pageContainer, _pageLabel);
 
             _notebook.AppendPage(new Box(Orientation.Vertical, 5), null);
 
@@ -53,8 +76,14 @@ namespace SiKGuiGtk
             CreateBoardIdLine();
             CreateButtonsLine();
 
+            // TODO: Fix Statusbar at the bottom
+            _statusBar = new Statusbar();
+            _pageContainer.Add(_statusBar);
+            _cxt = _statusBar.GetContextId("Main page");
+
             ShowAll();
         }
+
         private void CreateDataTable()
         {
             Grid data_grid = new Grid();
@@ -148,26 +177,96 @@ namespace SiKGuiGtk
             _pageContainer.Add(conn_box);
 
             conn_box.Add(new Label("Serial Port:"));
-            var comports = SiKLink.SiKInterface.GetSerialPorts();
-            comports.Add("<refresh>");
 
-            ComboBox portname = new ComboBox(comports.ToArray());
-            portname.Changed += Portname_Changed;
-            conn_box.Add(portname);
+            _portNameCombo = new ComboBoxText();
+            _portNameCombo.Changed += Portname_Changed;
+            conn_box.Add(_portNameCombo);
+            PopulateSerialPortCombo();
 
             conn_box.Add(new Label("Port baudrate:"));
-            ComboBox baudrate = new ComboBox(Helpers.SerialRates);
-            conn_box.Add(baudrate);
+
+            _baudRateCombo = new ComboBoxText();
+            conn_box.Add(_baudRateCombo);
+            foreach (var bd_rate in Helpers.SerialRates)
+                _baudRateCombo.PrependText(bd_rate);
 
             Button conn_btn = new Button();
             conn_btn.Label = "Connect";
-            conn_btn.Clicked += (sender, e) => Debug.WriteLine("Connected clicked!");
+            conn_btn.Clicked += BtnConnect_Click;
             conn_box.Add(conn_btn);
 
             Button disconn_btn = new Button();
             disconn_btn.Label = "Disconnect";
-            disconn_btn.Clicked += (sender, e) => Debug.WriteLine("Disconnected clicked!");
+            disconn_btn.Clicked += BtnDisconnect_Click;
             conn_box.Add(disconn_btn);
+        }
+        private void PopulateSerialPortCombo()
+        {
+            var ports = SiKInterface.GetSerialPorts();
+            ports.Add("<refresh>");
+
+            _portNameCombo.RemoveAll();
+            foreach (var pname in ports)
+                _portNameCombo.PrependText(pname);
+        }
+        private void BtnConnect_Click(object sender, EventArgs e)
+        {
+            var port = _portNameCombo.ActiveText;
+            if (port == null || port == "<refresh>")
+            {
+                _statusBar.RemoveAll(_cxt);
+                _statusBar.Push(_cxt, "Select Serial port!");
+                return;
+            }
+
+            var baud_str = _baudRateCombo.ActiveText;
+            if (baud_str == null)
+            {
+                _statusBar.RemoveAll(_cxt);
+                _statusBar.Push(_cxt, "Select Baud rate");
+                return;
+            }
+
+            int baud;
+            if (!int.TryParse(baud_str, out baud))
+            {
+                _statusBar.RemoveAll(_cxt);
+                _statusBar.Push(_cxt, "Failure parsing Baud rate");
+                return;
+            }
+
+            if (!_sikInterface.Connect(port, baud))
+            {
+                _statusBar.RemoveAll(_cxt);
+                _statusBar.Push(_cxt, "Failed to open the COM port.");
+                return;
+            }
+
+            // Are we in the command mode already?
+            if (!_sikInterface.CheckCommandMode())
+            {
+                if (!_sikInterface.EnterCommandMode())
+                {
+                    _statusBar.RemoveAll(_cxt);
+                    _statusBar.Push(_cxt, "Failed to enter the command mode.");
+                    return;
+                }
+            }
+
+            _pageLabel.Text = $"{port}({baud})";
+
+            _statusBar.RemoveAll(_cxt);
+            _statusBar.Push(_cxt, "Connected!");
+
+            _sikInterface.ReadIdentificationData();
+        }
+        private void BtnDisconnect_Click(object sender, EventArgs e)
+        {
+            _sikInterface.Disconnect();
+            _pageLabel.Text = NOT_CONN_LBL;
+
+            _statusBar.RemoveAll(_cxt);
+            _statusBar.Push(_cxt, "Disconnected!");
         }
         private void CreateBoardIdLine()
         {
@@ -175,29 +274,19 @@ namespace SiKGuiGtk
             _pageContainer.Add(ident_line);
 
             ident_line.Add(new Label("Radio:"));
-            Entry _radioIdEntry = new Entry();
-            _radioIdEntry.IsEditable = false;
-            ident_line.Add(_radioIdEntry);
+            ident_line.Add(_boardIdentifiers.RadioIdEntry);
 
             ident_line.Add(new Label("Radio Ver:"));
-            Entry _radioVerEntry = new Entry();
-            _radioVerEntry.IsEditable = false;
-            ident_line.Add(_radioVerEntry);
+            ident_line.Add(_boardIdentifiers.RadioVerEntry);
 
             ident_line.Add(new Label("Board Id:"));
-            Entry _boardIdEntry = new Entry();
-            _boardIdEntry.IsEditable = false;
-            ident_line.Add(_boardIdEntry);
+            ident_line.Add(_boardIdentifiers.BoardIdEntry);
 
             ident_line.Add(new Label("Board Freq:"));
-            Entry _boardFreqEntry = new Entry();
-            _boardFreqEntry.IsEditable = false;
-            ident_line.Add(_boardFreqEntry);
+            ident_line.Add(_boardIdentifiers.BoardFreqEntry);
 
             ident_line.Add(new Label("BL Ver:"));
-            Entry _bootloadVerEntry = new Entry();
-            _bootloadVerEntry.IsEditable = false;
-            ident_line.Add(_bootloadVerEntry);
+            ident_line.Add(_boardIdentifiers.BootloaderVerEntry);
         }
         private void CreateButtonsLine()
         {
@@ -235,6 +324,7 @@ namespace SiKGuiGtk
         private void Portname_Changed(object sender, EventArgs e)
         {
             Debug.WriteLine("Portname_Changed");
+            // TODO: Check for <refresh> and refresh
         }
     }
 }
