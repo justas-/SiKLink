@@ -20,6 +20,9 @@ using SiKLink;
 
 namespace SiKGuiGtk
 {
+    /// <summary>
+    /// HMI elements and data bindings for Board Identifier fields
+    /// </summary>
     public class BoardIdentifierControls
     {
         public Entry RadioIdEntry;

@@ -31,7 +31,8 @@ namespace SiKGuiGtk
         private Notebook _notebook;
         private Box _pageContainer;
 
-        private BoardIdentifierControls _boardIdentifiers;
+        protected BoardIdentifierControls _boardIdentifiers;
+        protected DataTableControls _dataTableControls;
 
         private Label _pageLabel;
 
@@ -41,7 +42,17 @@ namespace SiKGuiGtk
         private Statusbar _statusBar;
         private uint _cxt;
 
-        private SiKInterface _sikInterface;
+        protected SiKInterface _sikInterface;
+
+        // Impersonate WPF control to enable code sharing
+        public string StatusMessage
+        {
+            set
+            {
+                _statusBar.RemoveAll(_cxt);
+                _statusBar.Push(_cxt, value);
+            }
+        }
 
         public MainWindow() : base(WindowType.Toplevel)
         {
@@ -56,7 +67,9 @@ namespace SiKGuiGtk
             _headerBar.Title = "SiK Radio Configurator";
 
             _boardIdentifiers = new BoardIdentifierControls();
+            _dataTableControls = new DataTableControls();
             _sikInterface.SiKConfig.PropertyChanged += _boardIdentifiers.SiKConfig_PropertyChanged;
+            _sikInterface.SiKConfig.PropertyChanged += _dataTableControls.SiKConfig_PropertyChanged;
 
             _pageLabel = new Label(NOT_CONN_LBL);
 
@@ -94,81 +107,81 @@ namespace SiKGuiGtk
             // Line 1
             cbox = new Box(Orientation.Horizontal, 1);
             cbox.Add(new Label("Serial Speed:"));
-            cbox.Add(new ComboBox());
+            cbox.Add(_dataTableControls.SerialSpeedCombo);
             data_grid.Attach(cbox, 0, 0, 1, 1);
 
             cbox = new Box(Orientation.Horizontal, 1);
             cbox.Add(new Label("Air Speed:"));
-            cbox.Add(new Entry());
+            cbox.Add(_dataTableControls.AirSpeedEntry);
             data_grid.Attach(cbox, 1, 0, 1, 1);
 
             cbox = new Box(Orientation.Horizontal, 1);
-            cbox.Add(new CheckButton("ECC"));
+            cbox.Add(_dataTableControls.EccCheck);
             data_grid.Attach(cbox, 2, 0, 1, 1);
 
             cbox = new Box(Orientation.Horizontal, 1);
             cbox.Add(new Label("MavLink:"));
-            cbox.Add(new ComboBox());
+            cbox.Add(_dataTableControls.MavLinkVerCombo);
             data_grid.Attach(cbox, 3, 0, 1, 1);
 
             // Line 2
             cbox = new Box(Orientation.Horizontal, 1);
             cbox.Add(new Label("Min Freq:"));
-            cbox.Add(new Entry());
+            cbox.Add(_dataTableControls.MinFreqEntry);
             data_grid.Attach(cbox, 0, 1, 1, 1);
 
             cbox = new Box(Orientation.Horizontal, 1);
-            cbox.Add(new Label("Max Freq::"));
-            cbox.Add(new Entry());
+            cbox.Add(new Label("Max Freq:"));
+            cbox.Add(_dataTableControls.MaxFreqEntry);
             data_grid.Attach(cbox, 1, 1, 1, 1);
 
             cbox = new Box(Orientation.Horizontal, 1);
             cbox.Add(new Label("Num Chan:"));
-            cbox.Add(new Entry());
+            cbox.Add(_dataTableControls.NumChanEntry);
             data_grid.Attach(cbox, 2, 1, 1, 1);
 
             cbox = new Box(Orientation.Horizontal, 1);
             cbox.Add(new Label("Tx Power:"));
-            cbox.Add(new ComboBox());
+            cbox.Add(_dataTableControls.TxPowerCombo);
             data_grid.Attach(cbox, 3, 1, 1, 1);
 
             // Line 3
             cbox = new Box(Orientation.Horizontal, 1);
             cbox.Add(new Label("Net ID:"));
-            cbox.Add(new Entry());
+            cbox.Add(_dataTableControls.NetIdEntry);
             data_grid.Attach(cbox, 0, 2, 1, 1);
 
             cbox = new Box(Orientation.Horizontal, 1);
             cbox.Add(new Label("Duty Cycle:"));
-            cbox.Add(new ComboBox());
+            cbox.Add(_dataTableControls.DutyCycleCombo);
             data_grid.Attach(cbox, 1, 2, 1, 1);
 
             cbox = new Box(Orientation.Horizontal, 1);
             cbox.Add(new Label("LBT RSSI:"));
-            cbox.Add(new ComboBox());
+            cbox.Add(_dataTableControls.LbtRssiCombo);
             data_grid.Attach(cbox, 2, 2, 1, 1);
 
             cbox = new Box(Orientation.Horizontal, 1);
             cbox.Add(new Label("Max Wnd:"));
-            cbox.Add(new ComboBox());
+            cbox.Add(_dataTableControls.MaxWndCombo);
             data_grid.Attach(cbox, 3, 2, 1, 1);
 
             // Line 4
             cbox = new Box(Orientation.Horizontal, 1);
-            cbox.Add(new CheckButton("RTS/CTS"));
+            cbox.Add(_dataTableControls.RtsCtsCheck);
             data_grid.Attach(cbox, 0, 3, 1, 1);
 
             cbox = new Box(Orientation.Horizontal, 1);
-            cbox.Add(new CheckButton("Manchester"));
+            cbox.Add(_dataTableControls.ManchesterCheck);
             data_grid.Attach(cbox, 1, 3, 1, 1);
 
             cbox = new Box(Orientation.Horizontal, 1);
-            cbox.Add(new CheckButton("Opp Send"));
+            cbox.Add(_dataTableControls.OpportunisticCheck);
             data_grid.Attach(cbox, 2, 3, 1, 1);
 
             cbox = new Box(Orientation.Horizontal, 1);
             cbox.Add(new Label("EEPROM Fmt:"));
-            cbox.Add(new Entry());
+            cbox.Add(_dataTableControls.EepromFmtEntry);
             data_grid.Attach(cbox, 3, 3, 1, 1);
         }
         private void CreatePortSelLine()
@@ -208,66 +221,7 @@ namespace SiKGuiGtk
             _portNameCombo.RemoveAll();
             foreach (var pname in ports)
                 _portNameCombo.PrependText(pname);
-        }
-        private void BtnConnect_Click(object sender, EventArgs e)
-        {
-            var port = _portNameCombo.ActiveText;
-            if (port == null || port == "<refresh>")
-            {
-                _statusBar.RemoveAll(_cxt);
-                _statusBar.Push(_cxt, "Select Serial port!");
-                return;
-            }
-
-            var baud_str = _baudRateCombo.ActiveText;
-            if (baud_str == null)
-            {
-                _statusBar.RemoveAll(_cxt);
-                _statusBar.Push(_cxt, "Select Baud rate");
-                return;
-            }
-
-            int baud;
-            if (!int.TryParse(baud_str, out baud))
-            {
-                _statusBar.RemoveAll(_cxt);
-                _statusBar.Push(_cxt, "Failure parsing Baud rate");
-                return;
-            }
-
-            if (!_sikInterface.Connect(port, baud))
-            {
-                _statusBar.RemoveAll(_cxt);
-                _statusBar.Push(_cxt, "Failed to open the COM port.");
-                return;
-            }
-
-            // Are we in the command mode already?
-            if (!_sikInterface.CheckCommandMode())
-            {
-                if (!_sikInterface.EnterCommandMode())
-                {
-                    _statusBar.RemoveAll(_cxt);
-                    _statusBar.Push(_cxt, "Failed to enter the command mode.");
-                    return;
-                }
-            }
-
-            _pageLabel.Text = $"{port}({baud})";
-
-            _statusBar.RemoveAll(_cxt);
-            _statusBar.Push(_cxt, "Connected!");
-
-            _sikInterface.ReadIdentificationData();
-        }
-        private void BtnDisconnect_Click(object sender, EventArgs e)
-        {
-            _sikInterface.Disconnect();
-            _pageLabel.Text = NOT_CONN_LBL;
-
-            _statusBar.RemoveAll(_cxt);
-            _statusBar.Push(_cxt, "Disconnected!");
-        }
+        }  
         private void CreateBoardIdLine()
         {
             Box ident_line = new Box(Orientation.Horizontal, 1);
@@ -295,36 +249,214 @@ namespace SiKGuiGtk
 
             Button read_btn = new Button();
             read_btn.Label = "Read Values";
+            read_btn.Clicked += BtnReadValues_Click;
             buttons_line.Add(read_btn);
 
             Button write_btn = new Button();
             write_btn.Label = "Write Values";
+            write_btn.Clicked += BtnWriteValues_Click;
             buttons_line.Add(write_btn);
 
             Button save_eeprom_btn = new Button();
             save_eeprom_btn.Label = "Save to EEPROM";
+            save_eeprom_btn.Clicked += BtnSaveEeprom_Click;
             buttons_line.Add(save_eeprom_btn);
 
             Button restart_btn = new Button();
             restart_btn.Label = "Restart Radio";
+            restart_btn.Clicked += BtnRestart_Click;
             buttons_line.Add(restart_btn);
 
             Button save_btn = new Button();
             save_btn.Label = "Save";
+            save_btn.Clicked += BtnSave_Click;
             buttons_line.Add(save_btn);
 
             Button load_btn = new Button();
             load_btn.Label = "Load";
+            load_btn.Clicked += BtnLoad_Click;
             buttons_line.Add(load_btn);
 
             Button rssi_btn = new Button();
             rssi_btn.Label = "RSSI";
+            rssi_btn.Clicked += BtnRssi_Click;
             buttons_line.Add(rssi_btn);
         }
         private void Portname_Changed(object sender, EventArgs e)
         {
-            Debug.WriteLine("Portname_Changed");
-            // TODO: Check for <refresh> and refresh
+            var port = _portNameCombo.ActiveText;
+            // Handle only <refresh> request
+            if (port != "<refresh>")
+                return;
+
+            PopulateSerialPortCombo();
+        }
+        private void BtnConnect_Click(object sender, EventArgs e)
+        {
+            var port = _portNameCombo.ActiveText;
+            if (port == null || port == "<refresh>")
+            {
+                StatusMessage = "Select Serial port!";
+                return;
+            }
+
+            var baud_str = _baudRateCombo.ActiveText;
+            if (baud_str == null)
+            {
+                StatusMessage = "Select Baud rate";
+                return;
+            }
+
+            int baud;
+            if (!int.TryParse(baud_str, out baud))
+            {
+                StatusMessage = "Failure parsing Baud rate";
+                return;
+            }
+
+            if (!_sikInterface.Connect(port, baud))
+            {
+                StatusMessage = "Failed to open the COM port.";
+                return;
+            }
+
+            // Are we in the command mode already?
+            if (!_sikInterface.CheckCommandMode())
+            {
+                if (!_sikInterface.EnterCommandMode())
+                {
+                    StatusMessage = "Failed to enter the command mode.";
+                    return;
+                }
+            }
+
+            _pageLabel.Text = $"{port}({baud})";
+            StatusMessage = "Connected!";
+            _sikInterface.ReadIdentificationData();
+        }
+        private void BtnDisconnect_Click(object sender, EventArgs e)
+        {
+            _sikInterface.Disconnect();
+            _pageLabel.Text = NOT_CONN_LBL;
+
+            StatusMessage = "Disconnected";
+        }
+        private void BtnReadValues_Click(object sender, EventArgs e)
+        {
+            if (!_sikInterface.PortConnected)
+            {
+                StatusMessage = "Not connected to the radio!";
+                return;
+            }
+
+            if (!_sikInterface.ReadEEPROMData())
+            {
+                StatusMessage = "Failure reading EEPROM parameters";
+            }
+
+            StatusMessage = "EEPROM parameters read";
+        }
+        private void BtnWriteValues_Click(object sender, EventArgs e)
+        {
+            if (!_sikInterface.PortConnected)
+            {
+                StatusMessage = "Not connected to the radio!";
+                return;
+            }
+
+            if (!_sikInterface.SaveParameters())
+            {
+                StatusMessage = "Failed to save the parameters";
+            }
+            else
+            {
+                StatusMessage = "Parameters saved.";
+            }
+        }
+        private void BtnSaveEeprom_Click(object sender, EventArgs e)
+        {
+            if (!_sikInterface.PortConnected)
+            {
+                StatusMessage = "Not connected to the radio!";
+                return;
+            }
+
+            if (_sikInterface.SaveToEEPROM())
+            {
+                StatusMessage = "Configuration saved to EEPROM.";
+            }
+            else
+            {
+                StatusMessage = "Failure while writing EEPROM.";
+            }
+        }
+        private void BtnRestart_Click(object sender, EventArgs e)
+        {
+            if (!_sikInterface.PortConnected)
+            {
+                StatusMessage = "Not connected to the radio!";
+                return;
+            }
+
+            _sikInterface.RebootRadio();
+            StatusMessage = "Radio reboot requested.";
+        }
+        private void BtnSave_Click(object sender, EventArgs e)
+        {
+            var dialog = new FileChooserDialog(
+                "Save configuration",
+                this,
+                FileChooserAction.Save);
+            dialog.AddButton(Stock.Cancel, ResponseType.Cancel);
+            dialog.AddButton(Stock.Save, ResponseType.Ok);
+            dialog.SetCurrentFolder(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments));
+            dialog.SelectMultiple = false;
+
+            var response = (ResponseType)dialog.Run();
+            if (response == ResponseType.Ok)
+            {
+                if (_sikInterface.SaveParamsToFile(dialog.Filename))
+                {
+                    StatusMessage = "Parameters saved to a backup file.";
+                }
+                else
+                {
+                    StatusMessage = "Failed to save the parameters file.";
+                }
+            }
+            dialog.Dispose();
+        }
+        private void BtnLoad_Click(object sender, EventArgs e)
+        {
+            var dialog = new FileChooserDialog(
+                    "Load configuration",
+                    this,
+                    FileChooserAction.Open);
+            dialog.AddButton(Stock.Cancel, ResponseType.Cancel);
+            dialog.AddButton(Stock.Open, ResponseType.Ok);
+            dialog.SetCurrentFolder(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments));
+            dialog.SelectMultiple = false;
+
+            var response = (ResponseType)dialog.Run();
+            if (response == ResponseType.Ok)
+            {
+                if (_sikInterface.LoadParamsFromFile(dialog.Filename))
+                {
+                    _sikInterface.SiKConfig.PropertyChanged += _boardIdentifiers.SiKConfig_PropertyChanged;
+                    _sikInterface.SiKConfig.PropertyChanged += _dataTableControls.SiKConfig_PropertyChanged;
+                    _dataTableControls.CreateBindings();
+                    StatusMessage = "Parameters loaded from a config file.";
+                }
+                else
+                {
+                    StatusMessage = "Failed to load the parameters.";
+                }
+            }
+            dialog.Dispose();
+        }
+        private void BtnRssi_Click(object sender, EventArgs e)
+        {
+            // TODO
         }
     }
 }
