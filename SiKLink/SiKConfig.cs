@@ -270,7 +270,7 @@ namespace SiKLink
                 if (_manchester != value)
                 {
                     _manchester = value;
-                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("LbtRssiThreshold"));
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("ManchesterEncoding"));
                 }
             }
         }

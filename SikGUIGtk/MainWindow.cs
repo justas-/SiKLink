@@ -25,7 +25,7 @@ namespace SiKGuiGtk
 {
     class MainWindow : Window
     {
-        private static string NOT_CONN_LBL = "Not Connected";
+        private static readonly string NOT_CONN_LBL = "Not Connected";
 
         private HeaderBar _headerBar;
         private Notebook _notebook;
@@ -69,7 +69,7 @@ namespace SiKGuiGtk
             _boardIdentifiers = new BoardIdentifierControls();
             _dataTableControls = new DataTableControls();
             _sikInterface.SiKConfig.PropertyChanged += _boardIdentifiers.SiKConfig_PropertyChanged;
-            _sikInterface.SiKConfig.PropertyChanged += _dataTableControls.SiKConfig_PropertyChanged;
+            _dataTableControls.CreateBindings(_sikInterface.SiKConfig);
 
             _pageLabel = new Label(NOT_CONN_LBL);
 
@@ -79,8 +79,7 @@ namespace SiKGuiGtk
             _notebook = new Notebook();
             _pageContainer = new Box(Orientation.Vertical, 1);
             _notebook.AppendPage(_pageContainer, _pageLabel);
-
-            _notebook.AppendPage(new Box(Orientation.Vertical, 5), null);
+            _notebook.AppendPage(new Box(Orientation.Vertical, 5), new Label("TBD"));
 
             Add(_notebook);
 
@@ -96,7 +95,6 @@ namespace SiKGuiGtk
 
             ShowAll();
         }
-
         private void CreateDataTable()
         {
             Grid data_grid = new Grid();
@@ -221,7 +219,7 @@ namespace SiKGuiGtk
             _portNameCombo.RemoveAll();
             foreach (var pname in ports)
                 _portNameCombo.PrependText(pname);
-        }  
+        }
         private void CreateBoardIdLine()
         {
             Box ident_line = new Box(Orientation.Horizontal, 1);
@@ -443,8 +441,7 @@ namespace SiKGuiGtk
                 if (_sikInterface.LoadParamsFromFile(dialog.Filename))
                 {
                     _sikInterface.SiKConfig.PropertyChanged += _boardIdentifiers.SiKConfig_PropertyChanged;
-                    _sikInterface.SiKConfig.PropertyChanged += _dataTableControls.SiKConfig_PropertyChanged;
-                    _dataTableControls.CreateBindings();
+                    _dataTableControls.CreateBindings(_sikInterface.SiKConfig);
                     StatusMessage = "Parameters loaded from a config file.";
                 }
                 else

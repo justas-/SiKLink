@@ -86,15 +86,34 @@ namespace SiKGuiGtk
             OpportunisticCheck = new CheckButton("Opp. Send");
             EepromFmtEntry = new Entry();
             EepromFmtEntry.IsEditable = false;
-
-            CreateBindings();
         }
         /// <summary>
         /// Create HMI to Data Model bindings
         /// </summary>
-        public void CreateBindings()
+        public void CreateBindings(SiKConfig sik_config)
         {
+            // Subscribe to Data Model -> HMI direction
+            sik_config.PropertyChanged += SiKConfig_PropertyChanged;
 
+            // Implement HMI -> Data Model direction
+            SerialSpeedCombo.Changed += (s, e) => { sik_config.SerialSpeed = int.Parse(SerialSpeedCombo.ActiveText); };
+            AirSpeedEntry.Changed += (s, e) => { sik_config.AirSpeed = int.Parse(AirSpeedEntry.Text); };
+            EccCheck.Toggled += (s, e) => { sik_config.ECC = EccCheck.Active; };
+            MavLinkVerCombo.Changed += (s, e) => { sik_config.MavlinkMode = Helpers.MavVersions.IndexOf(MavLinkVerCombo.ActiveText); };
+
+            MinFreqEntry.Changed += (s, e) => { sik_config.MinFrequency = int.Parse(MinFreqEntry.Text); };
+            MaxFreqEntry.Changed += (s, e) => { sik_config.MaxFrequency = int.Parse(MaxFreqEntry.Text); };
+            NumChanEntry.Changed += (s, e) => { sik_config.NumChannels = int.Parse(NumChanEntry.Text); };
+            TxPowerCombo.Changed += (s, e) => { sik_config.TxPower = int.Parse(TxPowerCombo.ActiveText); };
+
+            NetIdEntry.Changed += (s, e) => { sik_config.NetworkID = int.Parse(NetIdEntry.Text); };
+            DutyCycleCombo.Changed += (s, e) => { sik_config.DutyCycle = int.Parse(DutyCycleCombo.ActiveText); };
+            LbtRssiCombo.Changed += (s, e) => { sik_config.LbtRssiThreshold = int.Parse(LbtRssiCombo.ActiveText); };
+            MaxWndCombo.Changed += (s, e) => { sik_config.MaxWindowSize = int.Parse(MaxWndCombo.ActiveText); };
+
+            RtsCtsCheck.Toggled += (s, e) => { sik_config.UseRtsCts = RtsCtsCheck.Active; };
+            ManchesterCheck.Toggled += (s, e) => { sik_config.ManchesterEncoding = ManchesterCheck.Active; };
+            OpportunisticCheck.Toggled += (s, e) => { sik_config.OpportunisticResend = OpportunisticCheck.Active; };
         }
         /// <summary>
         /// Implement Data Model to HMI binding
