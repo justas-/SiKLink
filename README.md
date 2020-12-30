@@ -43,4 +43,4 @@ User controls of SiKGUIGtk are exactly the same as in WPF version.
 _N.B._ 
 
 - RSSI figure drawing is not (yet) implemented.
-- Serial port drop-down is populated when the app starts. If you connect the SiK radio while the app is running, select the "<refresh>" option to re-populate the list.
+- Serial port drop-down is populated when the app starts. If you connect the SiK radio while the app is running, select the "&lt;refresh&gt;" option to re-populate the list.
