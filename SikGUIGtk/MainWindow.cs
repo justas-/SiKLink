@@ -60,6 +60,11 @@ namespace SiKGuiGtk
             WindowPosition = WindowPosition.Center;
             DefaultSize = new Gdk.Size(600, 300);
 
+            var provider = new CssProvider();
+            provider.LoadFromData(".blue-background { background-image: none; background-color: rgb(240, 248, 255); }");
+            Gtk.StyleContext.AddProviderForScreen(Gdk.Screen.Default, provider, 1);
+
+
             _sikInterface = new SiKInterface();
 
             _headerBar = new HeaderBar();
@@ -106,36 +111,43 @@ namespace SiKGuiGtk
             cbox = new Box(Orientation.Horizontal, 1);
             cbox.Add(new Label("Serial Speed:"));
             cbox.Add(_dataTableControls.SerialSpeedCombo);
+            cbox.StyleContext.AddClass("blue-background");
             data_grid.Attach(cbox, 0, 0, 1, 1);
 
             cbox = new Box(Orientation.Horizontal, 1);
             cbox.Add(new Label("Air Speed:"));
             cbox.Add(_dataTableControls.AirSpeedEntry);
+            cbox.StyleContext.AddClass("blue-background");
             data_grid.Attach(cbox, 1, 0, 1, 1);
 
             cbox = new Box(Orientation.Horizontal, 1);
             cbox.Add(_dataTableControls.EccCheck);
+            cbox.StyleContext.AddClass("blue-background");
             data_grid.Attach(cbox, 2, 0, 1, 1);
 
             cbox = new Box(Orientation.Horizontal, 1);
             cbox.Add(new Label("MavLink:"));
             cbox.Add(_dataTableControls.MavLinkVerCombo);
+            cbox.StyleContext.AddClass("blue-background");
             data_grid.Attach(cbox, 3, 0, 1, 1);
 
             // Line 2
             cbox = new Box(Orientation.Horizontal, 1);
             cbox.Add(new Label("Min Freq:"));
             cbox.Add(_dataTableControls.MinFreqEntry);
+            cbox.StyleContext.AddClass("blue-background");
             data_grid.Attach(cbox, 0, 1, 1, 1);
 
             cbox = new Box(Orientation.Horizontal, 1);
             cbox.Add(new Label("Max Freq:"));
             cbox.Add(_dataTableControls.MaxFreqEntry);
+            cbox.StyleContext.AddClass("blue-background");
             data_grid.Attach(cbox, 1, 1, 1, 1);
 
             cbox = new Box(Orientation.Horizontal, 1);
             cbox.Add(new Label("Num Chan:"));
             cbox.Add(_dataTableControls.NumChanEntry);
+            cbox.StyleContext.AddClass("blue-background");
             data_grid.Attach(cbox, 2, 1, 1, 1);
 
             cbox = new Box(Orientation.Horizontal, 1);
@@ -147,6 +159,7 @@ namespace SiKGuiGtk
             cbox = new Box(Orientation.Horizontal, 1);
             cbox.Add(new Label("Net ID:"));
             cbox.Add(_dataTableControls.NetIdEntry);
+            cbox.StyleContext.AddClass("blue-background");
             data_grid.Attach(cbox, 0, 2, 1, 1);
 
             cbox = new Box(Orientation.Horizontal, 1);
@@ -157,11 +170,13 @@ namespace SiKGuiGtk
             cbox = new Box(Orientation.Horizontal, 1);
             cbox.Add(new Label("LBT RSSI:"));
             cbox.Add(_dataTableControls.LbtRssiCombo);
+            cbox.StyleContext.AddClass("blue-background");
             data_grid.Attach(cbox, 2, 2, 1, 1);
 
             cbox = new Box(Orientation.Horizontal, 1);
             cbox.Add(new Label("Max Wnd:"));
             cbox.Add(_dataTableControls.MaxWndCombo);
+            cbox.StyleContext.AddClass("blue-background");
             data_grid.Attach(cbox, 3, 2, 1, 1);
 
             // Line 4
@@ -171,6 +186,7 @@ namespace SiKGuiGtk
 
             cbox = new Box(Orientation.Horizontal, 1);
             cbox.Add(_dataTableControls.ManchesterCheck);
+            cbox.StyleContext.AddClass("blue-background");
             data_grid.Attach(cbox, 1, 3, 1, 1);
 
             cbox = new Box(Orientation.Horizontal, 1);
@@ -279,6 +295,10 @@ namespace SiKGuiGtk
             rssi_btn.Label = "RSSI";
             rssi_btn.Clicked += BtnRssi_Click;
             buttons_line.Add(rssi_btn);
+
+            Label color_lbl = new Label("Blue Params must match on both ends!");
+            color_lbl.StyleContext.AddClass("blue-background");
+            buttons_line.Add(color_lbl);
         }
         private void Portname_Changed(object sender, EventArgs e)
         {
