@@ -36,7 +36,7 @@ User controls:
 
 SiKGUIGtk is a GUI application written in C# uing Gtk3 framework. It should be usable on MS Windows, Mac, and Linux operating systems.
 
-![Gtk3 GUI](https://raw.githubusercontent.com/justas-/SiKLink/main/.github/SikLinkGtk.jpg "Gtk3 GUI")
+![Gtk3 GUI](https://raw.githubusercontent.com/justas-/SiKLink/main/.github/SiKLinkGtk.jpg "Gtk3 GUI")
 
 User controls of SiKGUIGtk are exactly the same as in WPF version. 
 
