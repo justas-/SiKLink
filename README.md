@@ -1,6 +1,6 @@
-# SiKLink and SiKGUI
+# SiKLink
 
-A C# interface library and a GUI application to configure SiK radio transceivers commonly used in hobby applications.
+A C# interface library and a Graphical User Interface (GUI) application to configure SiK radio transceivers commonly used in hobby applications.
 
 ## SiKLink
 
@@ -8,9 +8,9 @@ SiKLink in a C# interface library to controll the SiK radio. It abstracts all se
 
 ## SiKGUI
 
-SiKGUI is a set of graphical application providing user interface to SiKLink. The goals of SiKGUI are to make SiKLink user-friendly, and to try the portability of .NET between the different operating systems and GUI frameworks.
+SiKGUI is an application providing graphical user interface to the SiKLink library. SiKGUI comes in two flavours. SiKGUIWPF is a Windows-only WPF application. SiKGUIGtk is a multi-platform (Windows, Linux, Mac) Gtk3-based application.
 
-_*TLDR*_ - Find the latest binary in [Github releases page](https://github.com/justas-/SiKLink/releases/).
+_*TLDR*_ - Find the latest binaries in [Github releases page](https://github.com/justas-/SiKLink/releases/).
 
 ### SiKGUIWPF
 
@@ -34,4 +34,13 @@ User controls:
 
 ### SiKGUIGtk
 
-SiKGUIGtk is TBD GUI application written in C# uing Gtk framework. It should be usable on MS Windows, Mac, and Linux operating systems.
+SiKGUIGtk is a GUI application written in C# uing Gtk3 framework. It should be usable on MS Windows, Mac, and Linux operating systems.
+
+![Gtk3 GUI](https://raw.githubusercontent.com/justas-/SiKLink/main/.github/SikLinkGtk.jpg "Gtk3 GUI")
+
+User controls of SiKGUIGtk are exactly the same as in WPF version. 
+
+_N.B._ 
+
+- RSSI figure drawing is not (yet) implemented.
+- Serial port drop-down is populated when the app starts. If you connect the SiK radio while the app is running, select the "<refresh>" option to re-populate the list.
